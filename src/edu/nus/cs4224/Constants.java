@@ -6,7 +6,7 @@ public class Constants {
 	
 	public static final String NODE = "localhost"; //TODO cluster seed node
 	
-	public static final int PORT = 9160;
+	public static final int PORT = 9042;
 	
 	public static final String KEYSPACE = "Supplier";
 	

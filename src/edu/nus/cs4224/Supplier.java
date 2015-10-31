@@ -1,9 +1,12 @@
 package edu.nus.cs4224;
 
+import java.math.BigDecimal;
+
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.mapping.MappingManager;
 
 public class Supplier {
 	
@@ -18,6 +21,10 @@ public class Supplier {
 	public static void main(String[] args) {
 		Supplier supplier = new Supplier();
 		supplier.query("warehouse");
+	}
+	
+	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmout) {
+		MappingManager manager = new MappingManager(session);
 	}
 	
 	public void insert(String table, String[] names, Object[] values) {

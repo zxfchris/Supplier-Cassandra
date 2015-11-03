@@ -2,21 +2,23 @@ package edu.nus.cs4224.d8;
 
 import java.math.BigDecimal;
 
+import com.datastax.driver.mapping.annotations.Column;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
 @Table(keyspace = "D8", name = "warehouse")
 public class Warehouse {
 	@PartitionKey
+	@Column(name="w_id")
 	private int id;
-	private String name;
-	private String street_1;
-	private String street_2;
-	private String city;
-	private String state;
-	private String zip;
-	private BigDecimal tax;
-	private BigDecimal ytd;
+	private String w_name;
+	private String w_street_1;
+	private String w_street_2;
+	private String w_city;
+	private String w_state;
+	private String w_zip;
+	private BigDecimal w_tax;
+	private BigDecimal w_ytd;
 	
 	public Warehouse() {
 	}
@@ -24,14 +26,14 @@ public class Warehouse {
 	public Warehouse(int id, String name, String street_1, String street_2, String city, 
 			String state, String zip, BigDecimal tax, BigDecimal ytd) {
 		this.id = id;
-		this.name = name;
-		this.street_1 = street_1;
-		this.street_2 = street_2;
-		this.city = city;
-		this.state = state;
-		this.zip = zip;
-		this.tax = tax;
-		this.ytd = ytd;
+		this.setW_name(name);
+		this.setW_street_1(street_1);
+		this.setW_street_2(street_2);
+		this.setW_city(city);
+		this.setW_state(state);
+		this.setW_zip(zip);
+		this.setW_tax(tax);
+		this.setW_ytd(ytd);
 	}
 	
 	public int getId() {
@@ -42,69 +44,68 @@ public class Warehouse {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getW_name() {
+		return w_name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setW_name(String w_name) {
+		this.w_name = w_name;
 	}
 
-	public String getStreet_1() {
-		return street_1;
+	public String getW_street_1() {
+		return w_street_1;
 	}
 
-	public void setStreet_1(String street_1) {
-		this.street_1 = street_1;
+	public void setW_street_1(String w_street_1) {
+		this.w_street_1 = w_street_1;
 	}
 
-	public String getStreet_2() {
-		return street_2;
+	public String getW_street_2() {
+		return w_street_2;
 	}
 
-	public void setStreet_2(String street_2) {
-		this.street_2 = street_2;
+	public void setW_street_2(String w_street_2) {
+		this.w_street_2 = w_street_2;
 	}
 
-	public String getCity() {
-		return city;
+	public String getW_city() {
+		return w_city;
 	}
 
-	public void setCity(String city) {
-		this.city = city;
+	public void setW_city(String w_city) {
+		this.w_city = w_city;
 	}
 
-	public String getState() {
-		return state;
+	public String getW_state() {
+		return w_state;
 	}
 
-	public void setState(String state) {
-		this.state = state;
+	public void setW_state(String w_state) {
+		this.w_state = w_state;
 	}
 
-	public String getZip() {
-		return zip;
+	public String getW_zip() {
+		return w_zip;
 	}
 
-	public void setZip(String zip) {
-		this.zip = zip;
+	public void setW_zip(String w_zip) {
+		this.w_zip = w_zip;
 	}
 
-	public BigDecimal getTax() {
-		return tax;
+	public BigDecimal getW_tax() {
+		return w_tax;
 	}
 
-	public void setTax(BigDecimal tax) {
-		this.tax = tax;
+	public void setW_tax(BigDecimal w_tax) {
+		this.w_tax = w_tax;
 	}
 
-	public BigDecimal getYtd() {
-		return ytd;
+	public BigDecimal getW_ytd() {
+		return w_ytd;
 	}
 
-	public void setYtd(BigDecimal ytd) {
-		this.ytd = ytd;
+	public void setW_ytd(BigDecimal w_ytd) {
+		this.w_ytd = w_ytd;
 	}
-	
 	
 }

@@ -35,3 +35,20 @@ District:
  Order_Line:
  create table Order_Line(OL_W_ID int,OL_D_ID int,OL_O_ID int,OL_NUMBER int,OL_I_ID int,OL_DELIVERY_D timestamp,OL_AMOUNT decimal,OL_SUPPLY_W_ID int,OL_QUANTITY decimal,OL_DIST_INFO varchar,primary key(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER));
  copy Order_Line(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER,OL_I_ID,OL_DELIVERY_D,OL_AMOUNT,OL_SUPPLY_W_ID,OL_QUANTITY,OL_DIST_INFO) from 'order-line.csv';//with HEADER = TRUE;
+ 
+ CREATE TABLE new_order_line (
+    ol_w_id int,
+    ol_d_id int,
+    ol_o_id int,
+    ol_number int,
+    ol_amount decimal,
+    ol_delivery_d timestamp,
+    ol_dist_info text,
+    ol_i_id int,
+    ol_i_name text,
+    ol_i_price decimal,
+    ol_quantity decimal,
+    ol_s_quantity decimal,
+    ol_supply_w_id int,
+    PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number)
+);

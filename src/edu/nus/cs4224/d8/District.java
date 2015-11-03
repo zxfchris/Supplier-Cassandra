@@ -2,6 +2,7 @@ package edu.nus.cs4224.d8;
 
 import java.math.BigDecimal;
 
+import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.Column;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
@@ -11,8 +12,7 @@ public class District {
 	@PartitionKey(0)
 	@Column(name="d_w_id")
 	private int d_w_id;
-	@PartitionKey(1)
-	
+	@ClusteringColumn
 	private int d_id;
 	
 	private String d_name;

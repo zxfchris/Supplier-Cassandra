@@ -3,47 +3,57 @@ package edu.nus.cs4224.d8;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.datastax.driver.mapping.annotations.ClusteringColumn;
+import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
 @Table(keyspace = "D8", name = "customer")
 public class Customer {
-	private int w_id;
-	private int d_id;
+	@PartitionKey(0)
+	private int c_w_id;
+	@PartitionKey(1)
+	private int c_d_id;
+	@ClusteringColumn
 	private int c_id;
-	
-	private Address address;
-	
-	private String phone;
-	private Date since;
-	private String credit;
-	private BigDecimal credit_lim;
-	private BigDecimal discount;
-	private BigDecimal balance;
-	private float ytd_payment;
-	private int payment_cnt;
-	private int delivery_cnt;
-	private String data;
+	private String c_first;
+	private String c_middle;
+	private String c_last;
+	private String c_street_1;
+	private String c_street_2;
+	private String c_city;
+	private String c_state;
+	private String c_zip;
+	private String c_phone;
+	private Date c_since;
+	private String c_credit;
+	private BigDecimal c_credit_lim;
+	private BigDecimal c_discount;
+	private BigDecimal c_balance;
+	private float c_ytd_payment;
+	private int c_payment_cnt;
+	private int c_delivery_cnt;
+	private String c_data;
 	
 	public Customer() {
 	}
 	
-	public Customer(int w_id, int d_id, int c_id) {
-		this.w_id = w_id;
-		this.d_id = d_id;
+	public Customer(int c_w_id, int c_d_id, int c_id) {
+		this.c_w_id = c_w_id;
+		this.c_d_id = c_d_id;
 		this.c_id = c_id;
 	}
 	
-	public int getW_id() {
-		return w_id;
+	public int getC_w_id() {
+		return c_w_id;
 	}
-	public void setW_id(int w_id) {
-		this.w_id = w_id;
+	public void setC_w_id(int c_w_id) {
+		this.c_w_id = c_w_id;
 	}
-	public int getD_id() {
-		return d_id;
+	public int getC_d_id() {
+		return c_d_id;
 	}
-	public void setD_id(int d_id) {
-		this.d_id = d_id;
+	public void setC_d_id(int c_d_id) {
+		this.c_d_id = c_d_id;
 	}
 	public int getC_id() {
 		return c_id;
@@ -51,70 +61,112 @@ public class Customer {
 	public void setC_id(int c_id) {
 		this.c_id = c_id;
 	}
-	public Address getAddress() {
-		return address;
+	public String getC_first() {
+		return c_first;
 	}
-	public void setAddress(Address address) {
-		this.address = address;
+	public void setC_first(String c_first) {
+		this.c_first = c_first;
 	}
-	public Date getSince() {
-		return since;
+	public String getC_middle() {
+		return c_middle;
 	}
-	public void setSince(Date since) {
-		this.since = since;
+	public void setC_middle(String c_middle) {
+		this.c_middle = c_middle;
 	}
-	public String getPhone() {
-		return phone;
+	public String getC_last() {
+		return c_last;
 	}
-	public void setPhone(String phone) {
-		this.phone = phone;
+	public void setC_last(String c_last) {
+		this.c_last = c_last;
 	}
-	public String getCredit() {
-		return credit;
+	public String getC_street_1() {
+		return c_street_1;
 	}
-	public void setCredit(String credit) {
-		this.credit = credit;
+	public void setC_street_1(String c_street_1) {
+		this.c_street_1 = c_street_1;
 	}
-	public BigDecimal getCredit_lim() {
-		return credit_lim;
+	public String getC_street_2() {
+		return c_street_2;
 	}
-	public void setCredit_lim(BigDecimal credit_lim) {
-		this.credit_lim = credit_lim;
+	public void setC_street_2(String c_street_2) {
+		this.c_street_2 = c_street_2;
 	}
-	public BigDecimal getDiscount() {
-		return discount;
+	public String getC_city() {
+		return c_city;
 	}
-	public void setDiscount(BigDecimal discount) {
-		this.discount = discount;
+	public void setC_city(String c_city) {
+		this.c_city = c_city;
 	}
-	public BigDecimal getBalance() {
-		return balance;
+	public String getC_state() {
+		return c_state;
 	}
-	public void setBalance(BigDecimal balance) {
-		this.balance = balance;
+	public void setC_state(String c_state) {
+		this.c_state = c_state;
 	}
-	public float getYtd_payment() {
-		return ytd_payment;
+	public String getC_zip() {
+		return c_zip;
 	}
-	public void setYtd_payment(float ytd_payment) {
-		this.ytd_payment = ytd_payment;
+	public void setC_zip(String c_zip) {
+		this.c_zip = c_zip;
 	}
-	public int getPayment_cnt() {
-		return payment_cnt;
+	public String getC_phone() {
+		return c_phone;
 	}
-	public void setPayment_cnt(int payment_cnt) {
-		this.payment_cnt = payment_cnt;
+	public void setC_phone(String c_phone) {
+		this.c_phone = c_phone;
 	}
-	public int getDelivery_cnt() {
-		return delivery_cnt;
+	public Date getC_since() {
+		return c_since;
 	}
-	public void setDelivery_cnt(int delivery_cnt) {
-		this.delivery_cnt = delivery_cnt;
+	public void setC_since(Date c_since) {
+		this.c_since = c_since;
 	}
-	public String getData() {
-		return data;
+	public String getC_credit() {
+		return c_credit;
 	}
-	public void setData(String data) {
-		this.data = data;
+	public void setC_credit(String c_credit) {
+		this.c_credit = c_credit;
+	}
+	public BigDecimal getC_credit_lim() {
+		return c_credit_lim;
+	}
+	public void setC_credit_lim(BigDecimal c_credit_lim) {
+		this.c_credit_lim = c_credit_lim;
+	}
+	public BigDecimal getC_discount() {
+		return c_discount;
+	}
+	public void setC_discount(BigDecimal c_discount) {
+		this.c_discount = c_discount;
+	}
+	public BigDecimal getC_balance() {
+		return c_balance;
+	}
+	public void setC_balance(BigDecimal c_balance) {
+		this.c_balance = c_balance;
+	}
+	public float getC_ytd_payment() {
+		return c_ytd_payment;
+	}
+	public void setC_ytd_payment(float c_ytd_payment) {
+		this.c_ytd_payment = c_ytd_payment;
+	}
+	public int getC_payment_cnt() {
+		return c_payment_cnt;
+	}
+	public void setC_payment_cnt(int c_payment_cnt) {
+		this.c_payment_cnt = c_payment_cnt;
+	}
+	public int getC_delivery_cnt() {
+		return c_delivery_cnt;
+	}
+	public void setC_delivery_cnt(int c_delivery_cnt) {
+		this.c_delivery_cnt = c_delivery_cnt;
+	}
+	public String getC_data() {
+		return c_data;
+	}
+	public void setC_data(String c_data) {
+		this.c_data = c_data;
 	}
 }

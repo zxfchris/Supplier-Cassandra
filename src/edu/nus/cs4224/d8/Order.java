@@ -1,23 +1,35 @@
 package edu.nus.cs4224.d8;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
-import com.datastax.driver.mapping.annotations.Column;
+import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
-import java.util.Date;
 
 @Table(keyspace = "D8", name = "order_")
 public class Order {
-	@PartitionKey
+	@PartitionKey(0)
 	private int o_w_id;
+	@PartitionKey(1)
     private int o_d_id;
+	@ClusteringColumn
     private int o_id;
     private BigDecimal o_all_local;
     private int o_c_id;
     private int o_carrier_id;
     private Date o_entry_d;
     private BigDecimal o_ol_cnt;
+    
+    public Order(){
+    }
+    
+    public Order(int o_w_id, int o_d_id, int o_id) {
+    	this.o_w_id = o_w_id;
+    	this.o_d_id = o_d_id;
+    	this.o_id = o_id;
+    }
+    
 	public int getO_w_id() {
 		return o_w_id;
 	}

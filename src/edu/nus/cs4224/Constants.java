@@ -11,5 +11,8 @@ public class Constants {
 	public static final String KEYSPACE = "Supplier";
 	
 	public static final ConsistencyLevel CL = ConsistencyLevel.ONE;
-
+	
+	public static final String COMPG_40 = "192.168.8.134";
+	
+	public static final String COMPG_41 = "192.168.8.133";
 }

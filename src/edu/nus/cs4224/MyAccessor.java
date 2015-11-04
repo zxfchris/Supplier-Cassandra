@@ -5,6 +5,7 @@ import com.datastax.driver.mapping.annotations.Accessor;
 import com.datastax.driver.mapping.annotations.Param;
 import com.datastax.driver.mapping.annotations.Query;
 
+import edu.nus.cs4224.d8.District;
 import edu.nus.cs4224.d8.Order;
 import edu.nus.cs4224.d8.OrderLine;
 
@@ -30,4 +31,20 @@ public interface MyAccessor {
 	Result<OrderLine> getOLbyOrders(@Param("ol_w_id") int w_id, 
 			@Param("ol_d_id") int d_id, @Param("ol_o_id") int o_id);
 	
+	//transaction 3, delivery
+	@Query("SELECT * FROM D8.district where " + "d_w_id = :d_w_id")
+	Result<District> getDistrictByWid(@Param("d_w_id") int w_id);
+	
+	@Query("SELECT * FROM D8.order where " 
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id "
+			+ "order by o_id")	//problem here, order by not work
+	Result<Order> getOrderByDistrict(@Param("o_w_id") int w_id,
+			@Param("ol_d_id") int d_id);
+	
+	//transaction 4, order-status
+	@Query("SELECT * FROM D8.order where " 
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id"
+			+ "order by o_id desc") //problem here, order by not work
+	Result<Order> getOrderByCustomer(@Param("o_w_id") int w_id,
+			@Param("ol_d_id") int d_id, @Param("ol_c_id") int c_id);
 }

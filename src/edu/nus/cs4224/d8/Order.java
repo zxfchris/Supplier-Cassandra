@@ -13,7 +13,7 @@ public class Order {
 	private int o_w_id;
 	@ClusteringColumn(0)
     private int o_d_id;
-	@ClusteringColumn(1)
+	//@ClusteringColumn(1)
     private int o_id;
     private BigDecimal o_all_local;
     private int o_c_id;

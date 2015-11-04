@@ -1,5 +1,9 @@
 package edu.nus.cs4224;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,7 +24,7 @@ import edu.nus.cs4224.d8.*;
 
 public class Supplier {
 	
-	private static Session session ;
+	public static Session session ;
 	private static MappingManager manager;
 	private static MyAccessor myAccessor;
 	private Mapper<District> d_mapper;
@@ -38,16 +42,18 @@ public class Supplier {
 		myAccessor = manager.createAccessor(MyAccessor.class);
 		d_mapper = manager.mapper(District.class);
 		c_mapper = manager.mapper(Customer.class);
-		i_mapper = manager.mapper(Item.class);
-		o_mapper = manager.mapper(Order.class);
-		ol_mapper = manager.mapper(OrderLine.class);
+		//i_mapper = manager.mapper(Item.class);
+		//o_mapper = manager.mapper(Order.class);
+		//ol_mapper = manager.mapper(OrderLine.class);
 	}
 
 	public static void main(String[] args) {
 		Supplier supplier = new Supplier();
-		supplier.query("warehouse");
+		//supplier.query("warehouse");
 		//BigDecimal ytd = new BigDecimal(20);
 		//supplier.paymentTran(1, 5, 10, ytd);
+		//TableCreator creator = new TableCreator();
+		//creator.run();
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {

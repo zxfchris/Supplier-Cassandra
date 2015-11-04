@@ -35,16 +35,16 @@ public interface MyAccessor {
 	@Query("SELECT * FROM D8.district where " + "d_w_id = :d_w_id")
 	Result<District> getDistrictByWid(@Param("d_w_id") int w_id);
 	
-	@Query("SELECT * FROM D8.order where " 
-			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id "
-			+ "order by o_id")	//problem here, order by not work
+	//+ "order by o_id")	problem here, order by not work
+	@Query("SELECT * FROM D8.order_ where " 
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id ")
 	Result<Order> getOrderByDistrict(@Param("o_w_id") int w_id,
-			@Param("ol_d_id") int d_id);
+			@Param("o_d_id") int d_id);
 	
 	//transaction 4, order-status
-	@Query("SELECT * FROM D8.order where " 
-			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id"
-			+ "order by o_id desc") //problem here, order by not work
+	@Query("SELECT * FROM D8.order_ where " 
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id")
+			//+ "order by o_id desc") problem here, order by not work
 	Result<Order> getOrderByCustomer(@Param("o_w_id") int w_id,
-			@Param("ol_d_id") int d_id, @Param("ol_c_id") int c_id);
+			@Param("o_d_id") int d_id, @Param("o_c_id") int c_id);
 }

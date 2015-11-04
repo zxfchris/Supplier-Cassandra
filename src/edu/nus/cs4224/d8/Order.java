@@ -9,11 +9,11 @@ import com.datastax.driver.mapping.annotations.Table;
 
 @Table(keyspace = "D8", name = "order_")
 public class Order {
-	@PartitionKey
+	@PartitionKey(0)
 	private int o_w_id;
-	@ClusteringColumn(0)
+	@PartitionKey(1)
     private int o_d_id;
-	//@ClusteringColumn(1)
+	@ClusteringColumn(1)
     private int o_id;
     private BigDecimal o_all_local;
     private int o_c_id;

@@ -26,6 +26,9 @@ public class Supplier {
 	private Mapper<District> d_mapper;
 	private Mapper<Customer> c_mapper;
 	private Mapper<Item> i_mapper;
+	private Mapper<Order> o_mapper;
+	private Mapper<Warehouse> w_mapper;
+	private Mapper<OrderLine> ol_mapper;
 	
 	public Supplier() {
 		CassandraConnector connector = new CassandraConnector();
@@ -36,6 +39,8 @@ public class Supplier {
 		d_mapper = manager.mapper(District.class);
 		c_mapper = manager.mapper(Customer.class);
 		i_mapper = manager.mapper(Item.class);
+		o_mapper = manager.mapper(Order.class);
+		ol_mapper = manager.mapper(OrderLine.class);
 	}
 
 	public static void main(String[] args) {
@@ -83,10 +88,6 @@ public class Supplier {
 	
 	public void insert(String table, String[] names, Object[] values) {
 		session.execute(QueryBuilder.insertInto(table).values(names, values));
-	}
-	
-	public void update(String table, String[] names, Object[] values) {
-		
 	}
 	
 	public void delete(String table, String key, String value) {
@@ -139,7 +140,7 @@ public class Supplier {
 	public List<Integer> queryStocks(int w_id, int d_id, int l, int t) {
 		District district = d_mapper.get(w_id, d_id);
 		int d_next_o_id = district.getD_next_o_id();
-
+		
 		Result<OrderLine> ol_List = myAccessor.getLastLOrdersLine(w_id, d_id, d_next_o_id - l, d_next_o_id);
 		List<Integer> stockAlert = new ArrayList<Integer>();
 		for (OrderLine ol : ol_List) {
@@ -148,6 +149,57 @@ public class Supplier {
 			}
 		}
 		return stockAlert;
+	}
+	/**
+	 * Delivery Transaction (transaction 3)
+	 * @param w_id	Warehouse number W_ID
+	 * @param carrier_id	CARRIER_ID
+	 * @return
+	 */
+	public void queryDeliveryTran(int w_id, int carrier_id) {
+		Result<District> districts = myAccessor.getDistrictByWid(w_id);
+		for (District distr : districts) {
+			int d_id = distr.getD_id();
+			Result<Order> orders = myAccessor.getOrderByDistrict(w_id, d_id);
+			Order X = orders.one();
+			int c_id = X.getO_c_id();
+			int N = X.getO_id();
+			X.setO_carrier_id(carrier_id);
+			o_mapper.save(X);
+			Result<OrderLine> ol_List = myAccessor.getOLbyOrders(w_id, d_id, N);
+			Date dt = new Date();
+			BigDecimal B = new BigDecimal(0);
+			for (OrderLine ol : ol_List) {
+				ol.setOl_delivery_d(dt);
+				ol_mapper.save(ol);
+				B.add(ol.getOl_amount());
+			}
+			Customer customer = c_mapper.get(w_id, d_id, c_id);
+			customer.setC_balance(customer.getC_balance().add(B));
+			customer.setC_delivery_cnt(customer.getC_delivery_cnt() + 1);
+			c_mapper.save(customer);
+		}
+	}
+	/**
+	 * Delivery Transaction (transaction 4)
+	 * @param w_id	Warehouse number W_ID
+	 * @param carrier_id	CARRIER_ID
+	 * @return
+	 */
+	public void queryOrderStatus(int c_w_id, int c_d_id, int c_id) {
+		Customer customer = c_mapper.get(c_w_id, c_d_id, c_id);
+		System.err.println(customer.getC_first() + "," + customer.getC_middle() + "," + customer.getC_last()
+				+ " : " + customer.getC_balance().toString());
+		Result<Order> orders = myAccessor.getOrderByCustomer(c_w_id, c_d_id, c_id);
+		Order lastOrder = orders.one();
+		System.err.println("O_ID:"+lastOrder.getO_id()+" O_ENTRY_D:"+lastOrder.getO_entry_d().toString()
+				+ " O_CARRIER_ID:"+lastOrder.getO_carrier_id());
+		Result<OrderLine> ol_list = myAccessor.getOLbyOrders(c_w_id, c_d_id, lastOrder.getO_id());
+		for (OrderLine ol : ol_list) {
+			System.err.println("OL_I_ID:" + ol.getOl_i_id() + " OL_SUPPLY_W_ID:" + ol.getOl_supply_w_id()
+					+ " OL_QUANTITY:" + ol.getOl_quantity() + " OL_AMOUNT" + ol.getOl_amount()
+					+ " OL_DELIVERY_D:" + ol.getOl_delivery_d());
+		}
 	}
 	/**
 	 * Popular-Item Transaction

@@ -10,7 +10,6 @@ import com.datastax.driver.mapping.annotations.Table;
 public class District {
 	@PartitionKey(0)
 	private int d_w_id;
-	
 	@ClusteringColumn
 	private int d_id;
 	

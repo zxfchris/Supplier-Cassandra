@@ -41,10 +41,10 @@ public class Supplier {
 		manager = new MappingManager(session);
 		myAccessor = manager.createAccessor(MyAccessor.class);
 		d_mapper = manager.mapper(District.class);
-		c_mapper = manager.mapper(Customer.class);
+		//c_mapper = manager.mapper(Customer.class);
 		//i_mapper = manager.mapper(Item.class);
 		//o_mapper = manager.mapper(Order.class);
-		//ol_mapper = manager.mapper(OrderLine.class);
+		ol_mapper = manager.mapper(OrderLine.class);
 	}
 
 	public static void main(String[] args) {

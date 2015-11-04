@@ -9,11 +9,11 @@ import com.datastax.driver.mapping.annotations.Table;
 
 @Table(keyspace = "D8", name = "customer")
 public class Customer {
-	@PartitionKey
+	@PartitionKey(0)
 	private int c_w_id;
-	@ClusteringColumn(0)
+	@PartitionKey(1)
 	private int c_d_id;
-	@ClusteringColumn(1)
+	@ClusteringColumn(0)
 	private int c_id;
 	private String c_first;
 	private String c_middle;

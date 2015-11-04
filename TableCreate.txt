@@ -1,42 +1,140 @@
 基表： 
-create ColumnFamily Warehouse (
-W_ID int PRIMARY KEY,
-W_NAME varchar,
-W_STREET_1 varchar,
-W_STREET_2 varchar,
-W_CITY varchar,
-W_STATE varchar,
-W_ZIP varchar,
-W_TAX decimal,
-W_YTD decimal
+CREATE TABLE warehouse (
+    w_id int PRIMARY KEY,
+    w_city text,
+    w_name text,
+    w_state text,
+    w_street_1 text,
+    w_street_2 text,
+    w_tax decimal,
+    w_ytd decimal,
+    w_zip text
 );
 copy Warehouse (W_ID, W_NAME, W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_TAX, W_YTD)
  from 'warehouse.csv'; 
+ 
 District:
- create table District(D_W_ID int,D_ID int,D_NAME varchar,D_STREET_1 varchar,D_STREET_2 varchar,D_CITY varchar,D_STATE varchar,D_ZIP varchar,D_TAX decimal,D_YTD decimal,D_NEXT_O_ID int,primary key(D_W_ID,D_ID));
- copy District(D_W_ID,D_ID,D_NAME,D_STREET_1,D_STREET_2,D_CITY,D_STATE,D_ZIP,D_TAX,D_YTD,D_NEXT_O_ID) from 'district.csv';// WITH  HEADER = TRUE;
+CREATE TABLE district (
+    d_w_id int,
+    d_id int,
+    d_city text,
+    d_name text,
+    d_next_o_id int,
+    d_state text,
+    d_street_1 text,
+    d_street_2 text,
+    d_tax decimal,
+    d_ytd decimal,
+    d_zip text,
+    PRIMARY KEY ((d_w_id, d_id))
+);
+copy District(D_W_ID,D_ID,D_NAME,D_STREET_1,D_STREET_2,D_CITY,D_STATE,D_ZIP,D_TAX,D_YTD,D_NEXT_O_ID) from 'district.csv';
 
- Item:
- create table Item(I_ID int primary key,I_NAME varchar,I_PRICE decimal,I_IM_ID int,I_DATA varchar);
- copy Item(I_ID,I_NAME,I_PRICE,I_IM_ID,I_DATA) from 'item.csv';// with HEADER = TRUE;
+Item:
+CREATE TABLE item (
+    i_id int PRIMARY KEY,
+    i_data text,
+    i_im_id int,
+    i_name text,
+    i_price decimal
+);
+copy Item(I_ID,I_NAME,I_PRICE,I_IM_ID,I_DATA) from 'item.csv';
 
  Stock:
- create table Stock(S_W_ID int,S_I_ID int,S_QUANTITY decimal,S_YTD decimal,S_ORDER_CNT int,S_REMOTE_CNT int,S_DIST_01 varchar,S_DIST_02 varchar,S_DIST_03 varchar,S_DIST_04 varchar,S_DIST_05 varchar,S_DIST_06 varchar,S_DIST_07 varchar,S_DIST_08 varchar,S_DIST_09 varchar,S_DIST_10 varchar,S_DATA varchar,primary key(S_W_ID,S_I_ID));
- copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';//with HEADER = TRUE;
+CREATE TABLE stock (
+    s_w_id int,
+    s_i_id int,
+    s_data text,
+    s_dist_01 text,
+    s_dist_02 text,
+    s_dist_03 text,
+    s_dist_04 text,
+    s_dist_05 text,
+    s_dist_06 text,
+    s_dist_07 text,
+    s_dist_08 text,
+    s_dist_09 text,
+    s_dist_10 text,
+    s_order_cnt int,
+    s_quantity decimal,
+    s_remote_cnt int,
+    s_ytd decimal,
+    PRIMARY KEY (s_w_id, s_i_id)
+);
+copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';//with HEADER = TRUE;
  
  Order_:
- create table Order_(O_W_ID int,O_D_ID int,O_ID int,O_C_ID int,O_CARRIER_ID int,O_OL_CNT decimal,O_ALL_LOCAL decimal,O_ENTRY_D timestamp,primary key(O_W_ID,O_D_ID,O_ID));
- copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';// with HEADER = TRUE;                                                                         
+CREATE TABLE order_ (
+    o_w_id int,
+    o_d_id int,
+    o_id int,
+    o_all_local decimal,
+    o_c_id int,
+    o_carrier_id int,
+    o_entry_d timestamp,
+    o_ol_cnt decimal,
+    PRIMARY KEY ((o_w_id, o_d_id), o_id)
+) WITH CLUSTERING ORDER BY (o_d_id ASC, o_id DESC)
+    AND bloom_filter_fp_chance = 0.01
+    AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
+    AND comment = ''
+    AND compaction = {'class': 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy'}
+    AND compression = {'sstable_compression': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    AND dclocal_read_repair_chance = 0.1
+    AND default_time_to_live = 0
+    AND gc_grace_seconds = 864000
+    AND max_index_interval = 2048
+    AND memtable_flush_period_in_ms = 0
+    AND min_index_interval = 128
+    AND read_repair_chance = 0.0
+    AND speculative_retry = '99.0PERCENTILE';
+CREATE INDEX order__o_c_id_idx ON d8.order_ (o_c_id);
+copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';// with HEADER = TRUE;                                                                         
  
- Customer:
- create table Customer(C_W_ID int,C_D_ID int,C_ID int,C_FIRST varchar,C_MIDDLE varchar,C_LAST varchar,C_STREET_1 varchar,C_STREET_2 varchar,C_CITY varchar,C_STATE varchar,C_ZIP varchar,C_PHONE varchar,C_SINCE timestamp,C_CREDIT varchar,C_CREDIT_LIM decimal,C_DISCOUNT decimal,C_BALANCE decimal,C_YTD_PAYMENT float,C_PAYMENT_CNT int,C_DELIVERY_CNT int,C_DATA varchar,primary key(C_W_ID,C_D_ID,C_ID));
- copy Customer(C_W_ID,C_D_ID,C_ID,C_FIRST,C_MIDDLE,C_LAST,C_STREET_1,C_STREET_2,C_CITY,C_STATE,C_ZIP,C_PHONE,C_SINCE,C_CREDIT,C_CREDIT_LIM,C_DISCOUNT,C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_DELIVERY_CNT,C_DATA) from 'customer.csv';// with HEADER = TURE; 
+Customer:
+CREATE TABLE customer (
+    c_w_id int,
+    c_d_id int,
+    c_id int,
+    c_balance decimal,
+    c_city text,
+    c_credit text,
+    c_credit_lim decimal,
+    c_data text,
+    c_delivery_cnt int,
+    c_discount decimal,
+    c_first text,
+    c_last text,
+    c_middle text,
+    c_payment_cnt int,
+    c_phone text,
+    c_since timestamp,
+    c_state text,
+    c_street_1 text,
+    c_street_2 text,
+    c_ytd_payment float,
+    c_zip text,
+    PRIMARY KEY ((c_w_id, c_d_id), c_id)
+);
+copy Customer(C_W_ID,C_D_ID,C_ID,C_FIRST,C_MIDDLE,C_LAST,C_STREET_1,C_STREET_2,C_CITY,C_STATE,C_ZIP,C_PHONE,C_SINCE,C_CREDIT,C_CREDIT_LIM,C_DISCOUNT,C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_DELIVERY_CNT,C_DATA) from 'customer.csv';// with HEADER = TURE; 
  
- Order_Line:
- create table Order_Line(OL_W_ID int,OL_D_ID int,OL_O_ID int,OL_NUMBER int,OL_I_ID int,OL_DELIVERY_D timestamp,OL_AMOUNT decimal,OL_SUPPLY_W_ID int,OL_QUANTITY decimal,OL_DIST_INFO varchar,primary key(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER));
- copy Order_Line(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER,OL_I_ID,OL_DELIVERY_D,OL_AMOUNT,OL_SUPPLY_W_ID,OL_QUANTITY,OL_DIST_INFO) from 'order-line.csv';//with HEADER = TRUE;
+Order_Line:
+CREATE TABLE order_line (
+    ol_w_id int,
+    ol_d_id int,
+    ol_o_id int,
+    ol_number int,
+    ol_amount decimal,
+    ol_delivery_d timestamp,
+    ol_dist_info text,
+    ol_i_id int,
+    ol_quantity decimal,
+    ol_supply_w_id int,
+    PRIMARY KEY ((ol_w_id, ol_d_id), ol_o_id, ol_number)
+);
+copy Order_Line(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER,OL_I_ID,OL_DELIVERY_D,OL_AMOUNT,OL_SUPPLY_W_ID,OL_QUANTITY,OL_DIST_INFO) from 'order-line.csv';//with HEADER = TRUE;
  
- CREATE TABLE new_order_line (
+CREATE TABLE new_order_line (
     ol_w_id int,
     ol_d_id int,
     ol_o_id int,
@@ -50,5 +148,5 @@ District:
     ol_quantity decimal,
     ol_s_quantity decimal,
     ol_supply_w_id int,
-    PRIMARY KEY (ol_w_id, ol_d_id, ol_o_id, ol_number)
+    PRIMARY KEY ((ol_w_id, ol_d_id), ol_o_id, ol_number)
 );

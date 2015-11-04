@@ -13,9 +13,9 @@ public class OrderLine {
 	private int ol_w_id;
 	@PartitionKey(1)
 	private int ol_d_id;
-	@PartitionKey(2)
-	private int ol_o_id;
 	@ClusteringColumn(0)
+	private int ol_o_id;
+	@ClusteringColumn(1)
 	private int ol_number;
 	private int ol_i_id;
 	private BigDecimal ol_i_stock;

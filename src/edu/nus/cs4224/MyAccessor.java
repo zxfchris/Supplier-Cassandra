@@ -42,9 +42,9 @@ public interface MyAccessor {
 			@Param("o_d_id") int d_id);
 	
 	//transaction 4, order-status
-	@Query("SELECT * FROM D8.order_ where " 
-			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id")
-			//+ "order by o_id desc") problem here, order by not work
+	@Query("SELECT * FROM D8.order_by_customer where " 
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id"
+			+ " order by o_id desc") //problem here, order by not work
 	Result<Order> getOrderByCustomer(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id, @Param("o_c_id") int c_id);
 }

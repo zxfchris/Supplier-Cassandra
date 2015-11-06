@@ -26,7 +26,7 @@ CREATE TABLE district (
     d_tax decimal,
     d_ytd decimal,
     d_zip text,
-    PRIMARY KEY ((d_w_id, d_id))
+    PRIMARY KEY (d_w_id, d_id)
 );
 copy District(D_W_ID,D_ID,D_NAME,D_STREET_1,D_STREET_2,D_CITY,D_STATE,D_ZIP,D_TAX,D_YTD,D_NEXT_O_ID) from 'district.csv';
 
@@ -61,7 +61,7 @@ CREATE TABLE stock (
     s_ytd decimal,
     PRIMARY KEY (s_w_id, s_i_id)
 );
-copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';//with HEADER = TRUE;
+copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';
  
  Order_:
 CREATE TABLE order_ (
@@ -74,7 +74,7 @@ CREATE TABLE order_ (
     o_entry_d timestamp,
     o_ol_cnt decimal,
     PRIMARY KEY ((o_w_id, o_d_id), o_id)
-) WITH CLUSTERING ORDER BY (o_d_id ASC, o_id DESC)
+) WITH CLUSTERING ORDER BY (o_id DESC)
     AND bloom_filter_fp_chance = 0.01
     AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
     AND comment = ''
@@ -89,8 +89,21 @@ CREATE TABLE order_ (
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
 CREATE INDEX order__o_c_id_idx ON d8.order_ (o_c_id);
-copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';// with HEADER = TRUE;                                                                         
- 
+copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';                                                                    
+
+CREATE TABLE order_by_customer (
+    o_w_id int,
+    o_d_id int,
+    o_id int,
+    o_all_local decimal,
+    o_c_id int,
+    o_carrier_id int,
+    o_entry_d timestamp,
+    o_ol_cnt decimal,
+    PRIMARY KEY ((o_w_id, o_d_id, o_c_id), o_id)
+) WITH CLUSTERING ORDER BY (o_id DESC);
+copy Order_by_customer(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';                                                                       
+
 Customer:
 CREATE TABLE customer (
     c_w_id int,

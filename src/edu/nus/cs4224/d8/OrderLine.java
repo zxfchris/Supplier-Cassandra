@@ -22,7 +22,7 @@ public class OrderLine {
 	private Date ol_delivery_d;
 	private BigDecimal ol_amount;
 	private int ol_supply_w_id;
-	@ClusteringColumn(1)
+	
 	private BigDecimal ol_quantity;
 	private String ol_district_info;
 	public int getOl_w_id() {

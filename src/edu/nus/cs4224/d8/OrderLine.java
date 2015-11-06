@@ -18,13 +18,23 @@ public class OrderLine {
 	@ClusteringColumn(1)
 	private int ol_number;
 	private int ol_i_id;
-	private BigDecimal ol_i_stock;
 	private Date ol_delivery_d;
 	private BigDecimal ol_amount;
 	private int ol_supply_w_id;
 	
 	private BigDecimal ol_quantity;
 	private String ol_district_info;
+	
+	public OrderLine(){
+	}
+	
+	public OrderLine(int ol_w_id, int ol_d_id, int ol_o_id, int ol_number) {
+		this.ol_w_id = ol_w_id;
+		this.ol_d_id = ol_d_id;
+		this.ol_o_id = ol_o_id;
+		this.ol_number = ol_number;
+	}
+	
 	public int getOl_w_id() {
 		return ol_w_id;
 	}
@@ -84,11 +94,5 @@ public class OrderLine {
 	}
 	public void setOl_district_info(String ol_district_info) {
 		this.ol_district_info = ol_district_info;
-	}
-	public BigDecimal getOl_i_stock() {
-		return ol_i_stock;
-	}
-	public void setOl_i_stock(BigDecimal ol_i_stock) {
-		this.ol_i_stock = ol_i_stock;
 	}
 }

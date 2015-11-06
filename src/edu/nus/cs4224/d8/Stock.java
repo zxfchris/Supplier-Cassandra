@@ -28,6 +28,14 @@ public class Stock {
     private int s_remote_cnt;
     private BigDecimal s_ytd;
     
+    public Stock(){
+    }
+    
+    public Stock(int s_w_id, int s_i_id) {
+    	this.s_w_id = s_w_id;
+    	this.s_i_id = s_i_id;
+    }
+    
 	public int getS_w_id() {
 		return s_w_id;
 	}

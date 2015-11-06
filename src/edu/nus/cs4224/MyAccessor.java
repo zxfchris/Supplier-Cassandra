@@ -27,8 +27,8 @@ public interface MyAccessor {
 	
 	@Query("SELECT * FROM D8.order_line where "
 			+ "ol_w_id = :ol_w_id AND ol_d_id = :ol_d_id"
-			+ " AND ol_o_id = :ol_o_id")			//TODO  AND ORDER BY ol_quantity DESC
-	Result<OrderLine> getOLbyOrders(@Param("ol_w_id") int w_id, 
+			+ " AND ol_o_id = :ol_o_id")			
+	Result<OrderLine> getOrderLinesByOrder(@Param("ol_w_id") int w_id, 
 			@Param("ol_d_id") int d_id, @Param("ol_o_id") int o_id);
 	
 	//transaction 3, delivery

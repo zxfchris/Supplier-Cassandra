@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -137,7 +138,7 @@ public class Supplier {
 	}
 	
 	/**
-	 * Stock-level Transaction
+	 * Stock-level Transaction (transaction 5)
 	 * @param w_id	Warehouse number W_ID
 	 * @param d_id	District number D_ID
 	 * @param l 	Number of last sold items to be examined L
@@ -174,7 +175,7 @@ public class Supplier {
 			int N = X.getO_id();
 			X.setO_carrier_id(carrier_id);
 			o_mapper.save(X);
-			Result<OrderLine> ol_List = myAccessor.getOLbyOrders(w_id, d_id, N);
+			Result<OrderLine> ol_List = myAccessor.getOrderLinesByOrder(w_id, d_id, N);
 			Date dt = new Date();
 			BigDecimal B = new BigDecimal(0);	//B: the sum of OL_AMOUNT for all the items placed in order X
 			for (OrderLine ol : ol_List) {
@@ -202,7 +203,7 @@ public class Supplier {
 		Order lastOrder = orders.one();
 		System.err.println("O_ID:"+lastOrder.getO_id()+" O_ENTRY_D:"+lastOrder.getO_entry_d().toString()
 				+ " O_CARRIER_ID:"+lastOrder.getO_carrier_id());
-		Result<OrderLine> ol_list = myAccessor.getOLbyOrders(c_w_id, c_d_id, lastOrder.getO_id());
+		Result<OrderLine> ol_list = myAccessor.getOrderLinesByOrder(c_w_id, c_d_id, lastOrder.getO_id());
 		for (OrderLine ol : ol_list) {
 			System.err.println("OL_I_ID:" + ol.getOl_i_id() + " OL_SUPPLY_W_ID:" + ol.getOl_supply_w_id()
 					+ " OL_QUANTITY:" + ol.getOl_quantity() + " OL_AMOUNT" + ol.getOl_amount()
@@ -210,7 +211,7 @@ public class Supplier {
 		}
 	}
 	/**
-	 * Popular-Item Transaction
+	 * Popular-Item Transaction (transaction 6)
 	 * @param w_id	Warehouse number W_ID
 	 * @param d_id	District number D_ID
 	 * @param l		Number of last orders to be examined L
@@ -233,12 +234,19 @@ public class Supplier {
 			String last_name = c.getC_last();
 			System.out.println(order_id + "_" + entry_date + ":" + first_name + "," + middle_name + "," + last_name);
 		
-			Result<OrderLine> o_ols = myAccessor.getOLbyOrders(w_id, d_id, o.getO_id());
-			OrderLine ol = o_ols.iterator().next();
+			Result<OrderLine> o_ols = myAccessor.getOrderLinesByOrder(w_id, d_id, o.getO_id());
+			List<OrderLine> ol_List = new ArrayList<OrderLine>();
+			for (OrderLine ol : o_ols) {
+				ol_List.add(ol);
+			}
+			OLComparator olC = new OLComparator();
+			Collections.sort(ol_List, olC);			//sort order_lines with an descending order
+			
+			OrderLine ol = ol_List.iterator().next();
 			BigDecimal max = ol.getOl_quantity();
 			Item item = i_mapper.get(ol.getOl_i_id());
 			updatePopularItems(popularItems, ol, item, orderNums);
-			while ((ol = o_ols.iterator().next()) != null) {
+			while ((ol = ol_List.iterator().next()) != null) {
 				if (ol.getOl_quantity().intValue() < max.intValue()) {
 					break;
 				}

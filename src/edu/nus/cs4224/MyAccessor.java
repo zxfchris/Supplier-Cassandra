@@ -10,6 +10,8 @@ import com.datastax.driver.mapping.annotations.Query;
 
 import edu.nus.cs4224.d8.District;
 import edu.nus.cs4224.d8.Order;
+import edu.nus.cs4224.d8.OrderByCarrier;
+import edu.nus.cs4224.d8.OrderByCustomer;
 import edu.nus.cs4224.d8.OrderLine;
 
 @Accessor
@@ -52,15 +54,19 @@ public interface MyAccessor {
 	Result<District> getDistrictByWid(@Param("d_w_id") int w_id);
 	
 	//+ "order by o_id")	problem here, order by not work
+//	@Query("SELECT * FROM D8.order_by_carrier where " 
+//			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_carrier_id = 0 order by o_id")
+//	Result<OrderByCarrier> getOrderByDistrictDelivery(@Param("o_w_id") int w_id,
+//			@Param("o_d_id") int d_id);
 	@Query("SELECT * FROM D8.order_ where " 
-			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id ")
-	Result<Order> getOrderByDistrict(@Param("o_w_id") int w_id,
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_carrier_id = 0")
+	Result<Order> getOrderByDistrictDelivery(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id);
 	
 	//transaction 4, order-status
 	@Query("SELECT * FROM D8.order_by_customer where " 
 			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_c_id = :o_c_id"
 			+ " order by o_id desc") //problem here, order by not work
-	Result<Order> getOrderByCustomer(@Param("o_w_id") int w_id,
+	Result<OrderByCustomer> getOrderByCustomer(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id, @Param("o_c_id") int c_id);
 }

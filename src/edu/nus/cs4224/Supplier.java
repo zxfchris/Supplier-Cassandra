@@ -59,8 +59,12 @@ public class Supplier {
 		//supplier.paymentTran(1, 5, 10, ytd);
 		//TableCreator creator = new TableCreator();
 		//creator.run();
+		//transaction 3
 		//supplier.queryDeliveryTran(1, 10);
-		supplier.queryOrderStatus(1, 5, 10);
+		//transaction 4
+		//supplier.queryOrderStatus(1, 5, 10);
+		//transaction 5
+		supplier.queryStocks(1, 2, 10, 30);
 	}
 	
 	public void newOrder(int w_id, int d_id, int c_id, int num_items, 
@@ -190,21 +194,24 @@ public class Supplier {
 	 * @param t		Stock threshold T
 	 * @return
 	 */
-	public List<Integer> queryStocks(int w_id, int d_id, int l, int t) {
+	public void queryStocks(int w_id, int d_id, int l, int t) {
 		District district = d_mapper.get(w_id, d_id);
 		int d_next_o_id = district.getD_next_o_id();
 		
 		Result<OrderLine> ol_List = myAccessor.getLastLOrdersLine(w_id, d_id, d_next_o_id - l, d_next_o_id);
-		List<Integer> stockAlert = new ArrayList<Integer>();
+		//List<Integer> stockAlert = new ArrayList<Integer>();
+		int totalItems = 0;
 		for (OrderLine ol : ol_List) {
 			int supplier_w_id = ol.getOl_supply_w_id();
 			int i_id = ol.getOl_i_id();
 			Stock stock = s_mapper.get(supplier_w_id, i_id);
-			if (stock.getS_quantity().doubleValue() < t) {
-				stockAlert.add(ol.getOl_i_id());
+			if (stock.getS_quantity().intValue() < t) {
+				//stockAlert.add(ol.getOl_i_id());
+				totalItems += stock.getS_quantity().intValue();
 			}
 		}
-		return stockAlert;
+		System.err.println("Total number of items:"+ totalItems);
+		//return stockAlert;
 	}
 	
 	/**

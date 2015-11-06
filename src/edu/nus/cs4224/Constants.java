@@ -8,7 +8,7 @@ public class Constants {
 	
 	public static final int PORT = 9042;
 	
-	public static final String KEYSPACE = "Supplier";
+	public static final String KEYSPACE = "D8";
 	
 	public static final ConsistencyLevel CL = ConsistencyLevel.ONE;
 	

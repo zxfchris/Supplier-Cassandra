@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,13 +55,7 @@ public class Supplier {
 
 	public static void main(String[] args) {
 		Supplier supplier = new Supplier();
-		//supplier.query("warehouse");
-		//BigDecimal ytd = new BigDecimal(20);
-		//supplier.paymentTran(1, 5, 10, ytd);
-		//TableCreator creator = new TableCreator();
-		//creator.run();
-		//supplier.queryDeliveryTran(1, 10);
-		supplier.queryOrderStatus(1, 5, 10);
+		supplier.queryPopularItems(1, 1, 2);
 	}
 	
 	public void newOrder(int w_id, int d_id, int c_id, int num_items, 
@@ -68,16 +63,24 @@ public class Supplier {
 		District district = d_mapper.get(w_id, d_id);
 		Warehouse warehouse = w_mapper.get(w_id);
 		Customer customer = c_mapper.get(w_id, d_id, c_id);
+		
 		BigDecimal c_discount = customer.getC_discount();
 		BigDecimal d_tax = district.getD_tax();
 		BigDecimal w_tax = warehouse.getW_tax();
 		BigDecimal tax = new BigDecimal(1).add(w_tax).add(d_tax);
+		System.err.println("customer identifier: " + w_id + "," + d_id + ","
+				+ c_id + ", last name: "+customer.getC_last()+", credit: "
+				+ customer.getC_credit()+", discount: "+ c_discount);
+		System.err.println("warehouse tax: "+w_tax+", district tax: "+d_tax);
 		
 		int N = district.getD_next_o_id();
-		myAccessor.updateNextOrderId(w_id, d_id);
+		myAccessor.updateNextOrderId(w_id, d_id, N+1);
 		Order newOrder = new Order(w_id, d_id, N);
 		newOrder.setO_c_id(c_id);
-		newOrder.setO_entry_d(new Date());
+		Date entry_date = new Date();
+		newOrder.setO_entry_d(entry_date);
+		System.err.println("order number O_ID: " + N + ", entry date O_ENTRY_D: " + entry_date);
+		
 		int o_all_local = 1;
 		for (int i=0; i<suppliers.length; i++) {
 			if (suppliers[i] != w_id) {
@@ -107,9 +110,11 @@ public class Supplier {
 			}
 			BigDecimal ytd_quantity = stock_i.getS_ytd();
 			if (w_id == supplier_id) {
-				myAccessor.updateLocalStock(adjusted_quantity, ytd_quantity.add(quantity), supplier_id, item_id);
+				myAccessor.updateLocalStock(adjusted_quantity, ytd_quantity.add(quantity),
+						supplier_id, item_id, stock_i.getS_order_cnt()+1);
 			} else {
-				myAccessor.updateRemoteStock(adjusted_quantity, ytd_quantity.add(quantity), supplier_id, item_id);
+				myAccessor.updateRemoteStock(adjusted_quantity, ytd_quantity.add(quantity), 
+						supplier_id, item_id, stock_i.getS_order_cnt()+1, stock_i.getS_remote_cnt()+1);
 			}
 			
 			OrderLine ol = new OrderLine(w_id, d_id, N, i+1);
@@ -119,10 +124,11 @@ public class Supplier {
 			ol.setOl_supply_w_id(supplier_id);
 			//TODO OL_DIST_INFO
 			ol_mapper.save(ol);
+			System.err.println(item_id+ "\t" + item.getI_name()+ "\t"+supplier_id+ "\t"
+					+quantity+ "\t"+item_amount+ "\t"+adjusted_quantity+ "\t");
 		}
 		total_amount.multiply(tax).multiply(new BigDecimal(1).subtract(c_discount));
-		
-		//TODO output
+		System.err.println("Number of items: " + N + ", total amount: " + total_amount);
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {
@@ -271,6 +277,7 @@ public class Supplier {
 		Map<Item, BigDecimal> popularItems = new HashMap<Item, BigDecimal>();
 		Map<Item, Integer> orderNums = new HashMap<Item, Integer>();
 		
+		System.err.println(w_id + "," + d_id);
 		District district = d_mapper.get(w_id, d_id);
 		int d_next_o_id = district.getD_next_o_id();
 		
@@ -283,7 +290,7 @@ public class Supplier {
 			String first_name = c.getC_first();
 			String middle_name = c.getC_middle();
 			String last_name = c.getC_last();
-			System.out.println(order_id + "_" + entry_date + ":" + first_name + "," + middle_name + "," + last_name);
+			System.err.println(order_id + "_" + entry_date + ":" + first_name + "," + middle_name + "," + last_name);
 		
 			Result<OrderLine> o_ols = myAccessor.getOrderLinesByOrder(w_id, d_id, o.getO_id());
 			List<OrderLine> ol_List = new ArrayList<OrderLine>();
@@ -293,18 +300,26 @@ public class Supplier {
 			OLComparator olC = new OLComparator();
 			Collections.sort(ol_List, olC);			//sort order_lines with an descending order
 			
-			OrderLine ol = ol_List.iterator().next();
+			Iterator<OrderLine> iter = ol_List.iterator();
+			OrderLine ol = iter.next();
 			BigDecimal max = ol.getOl_quantity();
 			Item item = i_mapper.get(ol.getOl_i_id());
 			updatePopularItems(popularItems, ol, item, orderNums);
-			while ((ol = ol_List.iterator().next()) != null) {
+			while (iter.hasNext()) {
+				ol = iter.next();
 				if (ol.getOl_quantity().intValue() < max.intValue()) {
 					break;
 				}
 				updatePopularItems(popularItems, ol, i_mapper.get(ol.getOl_i_id()), orderNums);
 			}
 		}
-		//TODO output
+		for (Item i : popularItems.keySet()) {
+			System.err.println(i.getI_name() + " Quantity ordered: " + popularItems.get(i));
+		}
+		
+		for (Item i : orderNums.keySet()) {
+			System.err.println(i.getI_name()+ " Number of orders: " + orderNums.get(i));
+		}
 	}
 	
 	private void updatePopularItems(Map<Item, BigDecimal> popularItems, OrderLine ol,

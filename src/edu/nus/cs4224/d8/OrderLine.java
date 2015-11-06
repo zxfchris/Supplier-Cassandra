@@ -23,7 +23,18 @@ public class OrderLine {
 	private int ol_supply_w_id;
 	
 	private BigDecimal ol_quantity;
-	private String ol_dist_info;
+	private String ol_district_info;
+	
+	public OrderLine(){
+	}
+	
+	public OrderLine(int ol_w_id, int ol_d_id, int ol_o_id, int ol_number) {
+		this.ol_w_id = ol_w_id;
+		this.ol_d_id = ol_d_id;
+		this.ol_o_id = ol_o_id;
+		this.ol_number = ol_number;
+	}
+	
 	public int getOl_w_id() {
 		return ol_w_id;
 	}
@@ -78,11 +89,10 @@ public class OrderLine {
 	public void setOl_quantity(BigDecimal ol_quantity) {
 		this.ol_quantity = ol_quantity;
 	}
-	
-	public String getOl_dist_info() {
-		return ol_dist_info;
+	public String getOl_district_info() {
+		return ol_district_info;
 	}
-	public void setOl_dist_info(String ol_dist_info) {
-		this.ol_dist_info = ol_dist_info;
+	public void setOl_district_info(String ol_district_info) {
+		this.ol_district_info = ol_district_info;
 	}
 }

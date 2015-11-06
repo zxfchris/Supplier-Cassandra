@@ -34,6 +34,7 @@ public class Supplier {
 	private Mapper<Order> o_mapper;
 	private Mapper<Warehouse> w_mapper;
 	private Mapper<OrderLine> ol_mapper;
+	private Mapper<Stock> s_mapper;
 	private Mapper<OrderByCarrier> obCarrier_mapper;
 	
 	public Supplier() {
@@ -47,6 +48,7 @@ public class Supplier {
 		i_mapper = manager.mapper(Item.class);
 		o_mapper = manager.mapper(Order.class);
 		ol_mapper = manager.mapper(OrderLine.class);
+		s_mapper = manager.mapper(Stock.class);
 		obCarrier_mapper = manager.mapper(OrderByCarrier.class);
 	}
 
@@ -59,6 +61,68 @@ public class Supplier {
 		//creator.run();
 		//supplier.queryDeliveryTran(1, 10);
 		supplier.queryOrderStatus(1, 5, 10);
+	}
+	
+	public void newOrder(int w_id, int d_id, int c_id, int num_items, 
+			int[] items, int[] suppliers, BigDecimal[] quantities) {
+		District district = d_mapper.get(w_id, d_id);
+		Warehouse warehouse = w_mapper.get(w_id);
+		Customer customer = c_mapper.get(w_id, d_id, c_id);
+		BigDecimal c_discount = customer.getC_discount();
+		BigDecimal d_tax = district.getD_tax();
+		BigDecimal w_tax = warehouse.getW_tax();
+		BigDecimal tax = new BigDecimal(1).add(w_tax).add(d_tax);
+		
+		int N = district.getD_next_o_id();
+		myAccessor.updateNextOrderId(w_id, d_id);
+		Order newOrder = new Order(w_id, d_id, N);
+		newOrder.setO_c_id(c_id);
+		newOrder.setO_entry_d(new Date());
+		int o_all_local = 1;
+		for (int i=0; i<suppliers.length; i++) {
+			if (suppliers[i] != w_id) {
+				o_all_local = 0;
+				break;
+			}
+		}
+		newOrder.setO_all_local(new BigDecimal(o_all_local));
+		newOrder.setO_ol_cnt(new BigDecimal(num_items));
+		o_mapper.save(newOrder);
+		BigDecimal total_amount = new BigDecimal(0);
+		
+		for (int i=0; i<num_items; i++) {
+			int item_id = items[i];
+			Item item = i_mapper.get(item_id);
+			BigDecimal item_price = item.getI_price();
+			int supplier_id = suppliers[i];
+			BigDecimal quantity = quantities[i];
+			BigDecimal item_amount = item_price.multiply(quantity);
+			total_amount.add(item_amount);
+			
+			Stock stock_i = s_mapper.get(supplier_id, item_id);
+			BigDecimal s_quantity = stock_i.getS_quantity();
+			BigDecimal adjusted_quantity = s_quantity.subtract(quantity);
+			if (adjusted_quantity.compareTo(new BigDecimal(10)) == -1) {
+				adjusted_quantity.add(new BigDecimal(91));
+			}
+			BigDecimal ytd_quantity = stock_i.getS_ytd();
+			if (w_id == supplier_id) {
+				myAccessor.updateLocalStock(adjusted_quantity, ytd_quantity.add(quantity), supplier_id, item_id);
+			} else {
+				myAccessor.updateRemoteStock(adjusted_quantity, ytd_quantity.add(quantity), supplier_id, item_id);
+			}
+			
+			OrderLine ol = new OrderLine(w_id, d_id, N, i+1);
+			ol.setOl_i_id(item_id);
+			ol.setOl_quantity(quantity);
+			ol.setOl_amount(item_amount);
+			ol.setOl_supply_w_id(supplier_id);
+			//TODO OL_DIST_INFO
+			ol_mapper.save(ol);
+		}
+		total_amount.multiply(tax).multiply(new BigDecimal(1).subtract(c_discount));
+		
+		//TODO output
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {
@@ -133,12 +197,16 @@ public class Supplier {
 		Result<OrderLine> ol_List = myAccessor.getLastLOrdersLine(w_id, d_id, d_next_o_id - l, d_next_o_id);
 		List<Integer> stockAlert = new ArrayList<Integer>();
 		for (OrderLine ol : ol_List) {
-			if (ol.getOl_i_stock().doubleValue() < t) {
+			int supplier_w_id = ol.getOl_supply_w_id();
+			int i_id = ol.getOl_i_id();
+			Stock stock = s_mapper.get(supplier_w_id, i_id);
+			if (stock.getS_quantity().doubleValue() < t) {
 				stockAlert.add(ol.getOl_i_id());
 			}
 		}
 		return stockAlert;
 	}
+	
 	/**
 	 * Delivery Transaction (transaction 3)
 	 * @param w_id	Warehouse number W_ID
@@ -170,6 +238,7 @@ public class Supplier {
 			c_mapper.save(customer);
 		}
 	}
+	
 	/**
 	 * Delivery Transaction (transaction 4)
 	 * @param w_id	Warehouse number W_ID
@@ -191,6 +260,7 @@ public class Supplier {
 					+ " OL_DELIVERY_D:" + ol.getOl_delivery_d());
 		}
 	}
+	
 	/**
 	 * Popular-Item Transaction (transaction 6)
 	 * @param w_id	Warehouse number W_ID

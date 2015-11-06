@@ -34,6 +34,7 @@ public class Supplier {
 	private Mapper<Order> o_mapper;
 	private Mapper<Warehouse> w_mapper;
 	private Mapper<OrderLine> ol_mapper;
+	private Mapper<OrderByCarrier> obCarrier_mapper;
 	
 	public Supplier() {
 		CassandraConnector connector = new CassandraConnector();
@@ -46,6 +47,7 @@ public class Supplier {
 		i_mapper = manager.mapper(Item.class);
 		o_mapper = manager.mapper(Order.class);
 		ol_mapper = manager.mapper(OrderLine.class);
+		obCarrier_mapper = manager.mapper(OrderByCarrier.class);
 	}
 
 	public static void main(String[] args) {
@@ -55,43 +57,22 @@ public class Supplier {
 		//supplier.paymentTran(1, 5, 10, ytd);
 		//TableCreator creator = new TableCreator();
 		//creator.run();
-		supplier.queryDeliveryTran(1, 10);
+		//supplier.queryDeliveryTran(1, 10);
+		supplier.queryOrderStatus(1, 5, 10);
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {
-		//update warehouse
-		String warehouseQuery = "select * from d8.warehouse where w_id =" + w_id;
-		ResultSet results = session.execute(warehouseQuery);
-		BigDecimal originYTD = results.all().get(0).getDecimal("w_ytd");
-		String updateWarehouse = "update d8.warehouse set w_ytd = " 
-				+ originYTD.add(paymentAmount)
-				+ " where w_id = " + w_id;
-		session.execute(updateWarehouse);
-		
-		//update district
-		String districtQuery = "select * from d8.district where d_w_id =" + w_id
-				+" and d_id ="+d_id;
-		results = session.execute(districtQuery);
-		originYTD = results.all().get(0).getDecimal("d_ytd");
-		String updateDistrict = "update d8.district set d_ytd = " 
-				+ originYTD.add(paymentAmount)
-				+ " where d_w_id = " + w_id + " and d_id="+d_id;
-		session.execute(updateDistrict);
-		
-		//update customer
-		String customerQuery = "select * from d8.customer where c_w_id =" + w_id
-				+" and c_d_id ="+d_id + " and c_id="+c_id;
-		results = session.execute(customerQuery);
-		Row row = results.all().get(0);
-		BigDecimal originBlc = row.getDecimal("c_balance");
-		float originYTDPmt = row.getFloat("c_ytd_payment");
-		int pmtCnt = row.getInt("c_payment_cnt");
-		String updateCustomer = "update d8.customer set c_balance = " 
-				+ originBlc.subtract(paymentAmount)
-				+ " ,c_ytd_payment=" + (originYTDPmt + paymentAmount.floatValue())
-				+ " ,c_payment_cnt=" + (pmtCnt + 1)
-				+ " where c_w_id = " + w_id + " and c_d_id="+d_id+ " and c_id="+c_id;
-		session.execute(updateCustomer);
+		Warehouse wh = w_mapper.get(w_id);
+		wh.setW_ytd(wh.getW_ytd().add(paymentAmount));
+		w_mapper.save(wh);
+		District district = d_mapper.get(w_id, d_id);
+		district.setD_ytd(district.getD_ytd().add(paymentAmount));
+		d_mapper.save(district);
+		Customer customer = c_mapper.get(w_id, d_id, c_id);
+		customer.setC_balance(customer.getC_balance().subtract(paymentAmount));
+		customer.setC_ytd_payment(customer.getC_ytd_payment() + paymentAmount.floatValue());
+		customer.setC_payment_cnt(customer.getC_payment_cnt() + 1);
+		c_mapper.save(customer);
 	}
 	
 	public void insert(String table, String[] names, Object[] values) {
@@ -169,7 +150,7 @@ public class Supplier {
 		for (District distr : districts) {
 			int d_id = distr.getD_id();
 			System.out.println("district:" + d_id);
-			Result<Order> orders = myAccessor.getOrderByDistrict(w_id, d_id);
+			Result<Order> orders = myAccessor.getOrderByDistrictDelivery(w_id, d_id);
 			Order X = orders.one();
 			int c_id = X.getO_c_id();
 			int N = X.getO_id();
@@ -199,8 +180,8 @@ public class Supplier {
 		Customer customer = c_mapper.get(c_w_id, c_d_id, c_id);
 		System.err.println(customer.getC_first() + "," + customer.getC_middle() + "," + customer.getC_last()
 				+ " : " + customer.getC_balance().toString());
-		Result<Order> orders = myAccessor.getOrderByCustomer(c_w_id, c_d_id, c_id);
-		Order lastOrder = orders.one();
+		Result<OrderByCustomer> orders = myAccessor.getOrderByCustomer(c_w_id, c_d_id, c_id);
+		OrderByCustomer lastOrder = orders.one();
 		System.err.println("O_ID:"+lastOrder.getO_id()+" O_ENTRY_D:"+lastOrder.getO_entry_d().toString()
 				+ " O_CARRIER_ID:"+lastOrder.getO_carrier_id());
 		Result<OrderLine> ol_list = myAccessor.getOrderLinesByOrder(c_w_id, c_d_id, lastOrder.getO_id());

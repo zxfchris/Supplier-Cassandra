@@ -61,7 +61,7 @@ CREATE TABLE stock (
     s_ytd decimal,
     PRIMARY KEY (s_w_id, s_i_id)
 );
-copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';//with HEADER = TRUE;
+copy Stock(S_W_ID,S_I_ID,S_QUANTITY,S_YTD,S_ORDER_CNT,S_REMOTE_CNT,S_DIST_01,S_DIST_02,S_DIST_03,S_DIST_04,S_DIST_05,S_DIST_06,S_DIST_07,S_DIST_08,S_DIST_09,S_DIST_10,S_DATA) from 'stock.csv';
  
  Order_:
 CREATE TABLE order_ (
@@ -89,7 +89,7 @@ CREATE TABLE order_ (
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
 CREATE INDEX order__o_c_id_idx ON d8.order_ (o_c_id);
-copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';// with HEADER = TRUE;                                                                         
+copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';                                                                    
 
 CREATE TABLE order_by_customer (
     o_w_id int,

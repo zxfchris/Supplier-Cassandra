@@ -54,6 +54,7 @@ public class Supplier {
 		//supplier.paymentTran(1, 5, 10, ytd);
 		//TableCreator creator = new TableCreator();
 		//creator.run();
+		supplier.queryDeliveryTran(1, 10);
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {
@@ -166,6 +167,7 @@ public class Supplier {
 		Result<District> districts = myAccessor.getDistrictByWid(w_id);
 		for (District distr : districts) {
 			int d_id = distr.getD_id();
+			System.out.println("district:" + d_id);
 			Result<Order> orders = myAccessor.getOrderByDistrict(w_id, d_id);
 			Order X = orders.one();
 			int c_id = X.getO_c_id();
@@ -174,7 +176,7 @@ public class Supplier {
 			o_mapper.save(X);
 			Result<OrderLine> ol_List = myAccessor.getOLbyOrders(w_id, d_id, N);
 			Date dt = new Date();
-			BigDecimal B = new BigDecimal(0);
+			BigDecimal B = new BigDecimal(0);	//B: the sum of OL_AMOUNT for all the items placed in order X
 			for (OrderLine ol : ol_List) {
 				ol.setOl_delivery_d(dt);
 				ol_mapper.save(ol);

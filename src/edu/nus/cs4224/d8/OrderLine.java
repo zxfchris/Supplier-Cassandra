@@ -44,7 +44,7 @@ public class OrderLine {
 		this.ol_i_id = ol_i_id;
 		this.ol_amount = ol_amount;
 		this.ol_supply_w_id = ol_supply_w_id;
-		this.ol_amount = ol_amount;
+		this.ol_quantity = ol_quantity;
 	}
 	
 	public int getOl_w_id() {

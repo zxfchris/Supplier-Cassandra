@@ -71,7 +71,7 @@ public class Supplier {
 		{
 			transFile = args[0];
 		}else {
-			transFile = "/Users/zhengxifeng/Desktop/xact-spec-files/D8-xact-files/0.txt";
+			transFile = "/Users/zhengxifeng/Desktop/xact-spec-files/D8-xact-files/3.txt";
 		}
 		System.out.println("Transaction for "+ transFile + " start");
 		BufferedReader br = null;
@@ -476,6 +476,7 @@ public class Supplier {
 			List<OrderLine> ol_List = new ArrayList<OrderLine>();
 			for (OrderLine ol : o_ols) {
 				ol_List.add(ol);
+				System.out.println(ol.getOl_quantity());
 			}
 			OLComparator olC = new OLComparator();
 			Collections.sort(ol_List, olC);			//sort order_lines with an descending order

@@ -2,7 +2,7 @@ package edu.nus.cs4224;
 
 import java.math.BigDecimal;
 
-import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.Accessor;
 import com.datastax.driver.mapping.annotations.Param;
@@ -10,25 +10,23 @@ import com.datastax.driver.mapping.annotations.Query;
 
 import edu.nus.cs4224.d8.District;
 import edu.nus.cs4224.d8.Order;
-import edu.nus.cs4224.d8.OrderByCarrier;
 import edu.nus.cs4224.d8.OrderByCustomer;
 import edu.nus.cs4224.d8.OrderLine;
 
 @Accessor
 public interface MyAccessor {
-
 	@Query("UPDATE supplier.district set d_next_o_id= :d_next_o_id where d_w_id= :d_w_id and d_id = :d_id")
-	ResultSet updateNextOrderId(@Param("d_w_id") int w_id, @Param("d_id") int d_id, @Param("d_next_o_id")int d_next_o_id);
+	Statement updateNextOrderId(@Param("d_w_id") int w_id, @Param("d_id") int d_id, @Param("d_next_o_id")int d_next_o_id);
 	
 	@Query("UPDATE supplier.stock set s_quantity=:adjusted_quantity, s_ytd=:ytd_quantity, "
 			+ "s_order_cnt=:s_order_cnt where s_w_id=:w_id and s_i_id=:i_id")
-	ResultSet updateLocalStock(@Param("adjusted_quantity")BigDecimal adjusted_quantity, 
+	Statement updateLocalStock(@Param("adjusted_quantity")BigDecimal adjusted_quantity, 
 			@Param("ytd_quantity") BigDecimal ytd_quantity, @Param("w_id") int w_id, 
 			@Param("i_id") int i_id, @Param("s_order_cnt") int s_order_cnt);
 	
 	@Query("UPDATE supplier.stock set s_quantity=:adjusted_quantity, s_ytd=:ytd_quantity, "
 			+ "s_order_cnt=:s_order_cnt, s_remote_cnt=:s_remote_cnt where s_w_id=:w_id and s_i_id=:i_id")
-	ResultSet updateRemoteStock(@Param("adjusted_quantity")BigDecimal adjusted_quantity, 
+	Statement updateRemoteStock(@Param("adjusted_quantity")BigDecimal adjusted_quantity, 
 			@Param("ytd_quantity") BigDecimal ytd_quantity, @Param("w_id") int w_id, @Param("i_id") int i_id,
 			@Param("s_order_cnt") int s_order_cnt, @Param("s_remote_cnt") int s_remote_cnt);
 	

@@ -35,6 +35,18 @@ public class OrderLine {
 		this.ol_number = ol_number;
 	}
 	
+	public OrderLine(int ol_w_id, int ol_d_id, int ol_o_id, int ol_number, 
+			int ol_i_id, BigDecimal ol_amount, int ol_supply_w_id, BigDecimal ol_quantity) {
+		this.ol_w_id = ol_w_id;
+		this.ol_d_id = ol_d_id;
+		this.ol_o_id = ol_o_id;
+		this.ol_number = ol_number;
+		this.ol_i_id = ol_i_id;
+		this.ol_amount = ol_amount;
+		this.ol_supply_w_id = ol_supply_w_id;
+		this.ol_amount = ol_amount;
+	}
+	
 	public int getOl_w_id() {
 		return ol_w_id;
 	}

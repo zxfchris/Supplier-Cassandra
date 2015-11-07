@@ -32,6 +32,17 @@ public class OrderByCustomer {
     	this.o_id = o_id;
     }
     
+    public OrderByCustomer(Order order) {
+    	this.o_w_id = order.getO_w_id();
+    	this.o_d_id = order.getO_d_id();
+    	this.o_id = order.getO_id();
+    	this.o_all_local = order.getO_all_local();
+    	this.o_carrier_id = order.getO_carrier_id();
+    	this.o_c_id = order.getO_c_id();
+    	this.o_entry_d = order.getO_entry_d();
+    	this.o_ol_cnt = order.getO_ol_cnt();
+    }
+    
 	public int getO_w_id() {
 		return o_w_id;
 	}

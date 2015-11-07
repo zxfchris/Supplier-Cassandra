@@ -6,7 +6,7 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(keyspace = "D8", name = "stock")
+@Table(keyspace = "Supplier", name = "stock")
 public class Stock {
 	@PartitionKey
 	private int s_w_id;

@@ -6,7 +6,7 @@ import com.datastax.driver.mapping.annotations.Column;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(keyspace = "D8", name = "warehouse")
+@Table(keyspace = "Supplier", name = "warehouse")
 public class Warehouse {
 	@PartitionKey
 	@Column(name="w_id")

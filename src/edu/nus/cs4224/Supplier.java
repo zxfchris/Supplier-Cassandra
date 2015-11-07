@@ -59,7 +59,14 @@ public class Supplier {
 
 	public static void main(String[] args) {
 		Supplier supplier = new Supplier();
-		String transFile = "/Users/zhengxifeng/Desktop/xact-spec-files/D8-xact-files/0.txt";
+		String transFile;
+		if (args.length > 0)
+		{
+			transFile = args[0];
+		}else {
+			transFile = "/Users/zhengxifeng/Desktop/xact-spec-files/D8-xact-files/0.txt";
+		}
+		System.out.println("Transaction for "+ transFile + " start");
 		BufferedReader br = null;
 		String line = "";
 		long startTime=System.currentTimeMillis();
@@ -158,7 +165,10 @@ public class Supplier {
 		System.err.println("Processed transaction number:"+transactionCounter);
 		System.err.println("Total elapsed time:"+elapseTime);
 		System.err.println("Transaction throughput:"+transactionCounter/elapseTime);
-		System.out.println("Done");
+		System.out.println("Transation for "+args[0] +" finished.");
+		System.out.println("Total elapsed time:"+elapseTime);
+		System.out.println("Transaction throughput:"+transactionCounter/elapseTime);
+		System.exit(0);
 	  }
 	
 	
@@ -342,6 +352,10 @@ public class Supplier {
 			//System.out.println("district:" + d_id);
 			Result<Order> orders = myAccessor.getOrderByDistrictDelivery(w_id, d_id);
 			Order X = orders.one();
+			if (null == X)
+			{
+				return;
+			}
 			int c_id = X.getO_c_id();
 			int N = X.getO_id();
 			X.setO_carrier_id(carrier_id);
@@ -373,6 +387,11 @@ public class Supplier {
 				+ " : " + customer.getC_balance().toString());
 		Result<OrderByCustomer> orders = myAccessor.getOrderByCustomer(c_w_id, c_d_id, c_id);
 		OrderByCustomer lastOrder = orders.one();
+		if (null == lastOrder)
+		{
+			//System.out.println(c_w_id+","+c_d_id+","+c_id);
+			return;
+		}
 		System.err.println("O_ID:"+lastOrder.getO_id()+" O_ENTRY_D:"+lastOrder.getO_entry_d().toString()
 				+ " O_CARRIER_ID:"+lastOrder.getO_carrier_id());
 		Result<OrderLine> ol_list = myAccessor.getOrderLinesByOrder(c_w_id, c_d_id, lastOrder.getO_id());

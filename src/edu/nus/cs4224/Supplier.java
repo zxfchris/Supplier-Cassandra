@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
@@ -187,12 +188,14 @@ public class Supplier {
 		System.err.println("warehouse tax: "+w_tax+", district tax: "+d_tax);
 		
 		int N = district.getD_next_o_id();
-		myAccessor.updateNextOrderId(w_id, d_id, N+1);
-		Order newOrder = new Order(w_id, d_id, N);
-		newOrder.setO_c_id(c_id);
+		BatchStatement batch = new BatchStatement();
+		batch.add(myAccessor.updateNextOrderId(w_id, d_id, N+1));
+		
+//		myAccessor.updateNextOrderId(w_id, d_id, N+1);
+//		Order newOrder = new Order(w_id, d_id, N);
+//		newOrder.setO_c_id(c_id);
 		Date entry_date = new Date();
-		newOrder.setO_entry_d(entry_date);
-		System.err.println("order number O_ID: " + N + ", entry date O_ENTRY_D: " + entry_date);
+//		newOrder.setO_entry_d(entry_date);
 		
 		int o_all_local = 1;
 		for (int i=0; i<suppliers.length; i++) {
@@ -201,21 +204,25 @@ public class Supplier {
 				break;
 			}
 		}
-		newOrder.setO_all_local(new BigDecimal(o_all_local));
-		newOrder.setO_ol_cnt(new BigDecimal(num_items));
-		o_mapper.save(newOrder);
+		Order newOrder = new Order(w_id, d_id, N, new BigDecimal(o_all_local), c_id, entry_date, new BigDecimal(num_items));
+		System.err.println("order number O_ID: " + N + ", entry date O_ENTRY_D: " + entry_date);
+//		newOrder.setO_all_local(new BigDecimal(o_all_local));
+//		newOrder.setO_ol_cnt(new BigDecimal(num_items));
+//		o_mapper.save(newOrder);
+		batch.add(o_mapper.saveQuery(newOrder));
 		OrderByCustomer newOrderByCust = new OrderByCustomer(newOrder);
-		obCustomer_mapper.save(newOrderByCust);
+//		obCustomer_mapper.save(newOrderByCust);
+		batch.add(obCustomer_mapper.saveQuery(newOrderByCust));
 		BigDecimal total_amount = new BigDecimal(0);
 		
 		for (int i=0; i<num_items; i++) {
 			int item_id = items[i];
-			Item item = i_mapper.get(item_id);
+			Item item = i_mapper.get(item_id);					//TODO maybe query too frequency
 			BigDecimal item_price = item.getI_price();
 			int supplier_id = suppliers[i];
 			BigDecimal quantity = quantities[i];
 			BigDecimal item_amount = item_price.multiply(quantity);
-			total_amount.add(item_amount);
+			total_amount = total_amount.add(item_amount);
 			
 			Stock stock_i = s_mapper.get(supplier_id, item_id);
 			BigDecimal s_quantity = stock_i.getS_quantity();
@@ -232,18 +239,20 @@ public class Supplier {
 						supplier_id, item_id, stock_i.getS_order_cnt()+1, stock_i.getS_remote_cnt()+1);
 			}
 			
-			OrderLine ol = new OrderLine(w_id, d_id, N, i+1);
-			ol.setOl_i_id(item_id);
-			ol.setOl_quantity(quantity);
-			ol.setOl_amount(item_amount);
-			ol.setOl_supply_w_id(supplier_id);
+			OrderLine ol = new OrderLine(w_id, d_id, N, i+1, item_id, item_amount, supplier_id, quantity);
+//			ol.setOl_i_id(item_id);
+//			ol.setOl_quantity(quantity);
+//			ol.setOl_amount(item_amount);
+//			ol.setOl_supply_w_id(supplier_id);
 			//TODO OL_DIST_INFO
-			ol_mapper.save(ol);
+//			ol_mapper.save(ol);
+			batch.add(ol_mapper.saveQuery(ol));
 			System.err.println(item_id+ "\t" + item.getI_name()+ "\t"+supplier_id+ "\t"
 					+quantity+ "\t"+item_amount+ "\t"+adjusted_quantity+ "\t");
 		}
-		total_amount.multiply(tax).multiply(new BigDecimal(1).subtract(c_discount));
+		total_amount = total_amount.multiply(tax).multiply(new BigDecimal(1).subtract(c_discount));
 		System.err.println("Number of items: " + N + ", total amount: " + total_amount);
+		session.execute(batch);
 	}
 	
 	public void paymentTran(int w_id, int d_id, int c_id, BigDecimal paymentAmount) {

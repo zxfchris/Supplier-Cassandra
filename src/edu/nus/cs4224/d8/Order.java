@@ -30,6 +30,17 @@ public class Order {
     	this.o_id = o_id;
     }
     
+    public Order(int o_w_id, int o_d_id, int o_id, BigDecimal o_all_local, 
+    		int o_c_id,  Date o_entry_d, BigDecimal o_ol_cnt) {
+    	this.o_w_id = o_w_id;
+    	this.o_d_id = o_d_id;
+    	this.o_id = o_id;
+    	this.o_all_local = o_all_local;
+    	this.o_c_id = o_c_id;
+    	this.o_entry_d = o_entry_d;
+    	this.o_ol_cnt = o_ol_cnt;
+    }
+    
 	public int getO_w_id() {
 		return o_w_id;
 	}

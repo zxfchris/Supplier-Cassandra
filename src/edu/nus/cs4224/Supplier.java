@@ -232,11 +232,11 @@ public class Supplier {
 			}
 			BigDecimal ytd_quantity = stock_i.getS_ytd();
 			if (w_id == supplier_id) {
-				myAccessor.updateLocalStock(adjusted_quantity, ytd_quantity.add(quantity),
-						supplier_id, item_id, stock_i.getS_order_cnt()+1);
+				batch.add(myAccessor.updateLocalStock(adjusted_quantity, ytd_quantity.add(quantity),
+						supplier_id, item_id, stock_i.getS_order_cnt()+1));
 			} else {
-				myAccessor.updateRemoteStock(adjusted_quantity, ytd_quantity.add(quantity), 
-						supplier_id, item_id, stock_i.getS_order_cnt()+1, stock_i.getS_remote_cnt()+1);
+				batch.add(myAccessor.updateRemoteStock(adjusted_quantity, ytd_quantity.add(quantity), 
+						supplier_id, item_id, stock_i.getS_order_cnt()+1, stock_i.getS_remote_cnt()+1));
 			}
 			
 			OrderLine ol = new OrderLine(w_id, d_id, N, i+1, item_id, item_amount, supplier_id, quantity);

@@ -59,6 +59,12 @@ public class Supplier {
 	}
 
 	public static void main(String[] args) {
+		try {
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 		Supplier supplier = new Supplier();
 		String transFile;
 		if (args.length > 0)
@@ -100,7 +106,12 @@ public class Supplier {
 						}
 						//System.out.println(items[j]+","+suppliers[j]+","+quantities[j].intValue());
 					}
-					supplier.newOrder(w_id, d_id, c_id, itemNumber, items, suppliers, quantities);
+					try{
+						supplier.newOrder(w_id, d_id, c_id, itemNumber, items, suppliers, quantities);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 					//break;
 				} else if (input[0].equals("P")) {
 					//Payment transaction
@@ -110,7 +121,12 @@ public class Supplier {
 					int c_id = Integer.parseInt(input[3]);
 					BigDecimal payment = new BigDecimal(input[4]);
 					//System.out.println("P,"+w_id+","+d_id+","+c_id);
-					supplier.paymentTran(w_id, d_id, c_id, payment);
+					try{
+						supplier.paymentTran(w_id, d_id, c_id, payment);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 					//break;
 				} else if (input[0].equals("D")) {
 					//delivery
@@ -118,7 +134,12 @@ public class Supplier {
 					int w_id = Integer.parseInt(input[1]);
 					int carrier_id = Integer.parseInt(input[2]);
 					//System.out.println("D,"+w_id+","+carrier_id);
-					supplier.queryDeliveryTran(w_id, carrier_id);
+					try{
+						supplier.queryDeliveryTran(w_id, carrier_id);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 					//break;
 				} else if (input[0].equals("O")) {
 					//order status
@@ -127,7 +148,12 @@ public class Supplier {
 					int c_d_id = Integer.parseInt(input[2]);
 					int c_id = Integer.parseInt(input[3]);
 					//System.out.println("O,"+c_w_id+","+c_d_id+","+c_id);
-					supplier.queryOrderStatus(c_w_id, c_d_id, c_id);
+					try{
+						supplier.queryOrderStatus(c_w_id, c_d_id, c_id);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 				} else if (input[0].equals("S")) {
 					//stock level
 					transactionCounter++;
@@ -136,7 +162,12 @@ public class Supplier {
 					int t = Integer.parseInt(input[3]);
 					int l = Integer.parseInt(input[4]);
 					//System.out.println("S,"+w_id+","+d_id+","+t);
-					supplier.queryStocks(w_id, d_id, l, t);
+					try{
+						supplier.queryStocks(w_id, d_id, l, t);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 				} else if (input[0].equals("I")) {
 					//popular item
 					transactionCounter++;
@@ -144,7 +175,12 @@ public class Supplier {
 					int d_id = Integer.parseInt(input[2]);
 					int l = Integer.parseInt(input[3]);
 					//System.out.println("I,"+w_id+","+d_id+","+l);
-					supplier.queryPopularItems(w_id, d_id, l);
+					try{
+						supplier.queryPopularItems(w_id, d_id, l);
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.exit(-1);
+					}
 				}
 				System.out.println();
 			}
@@ -166,7 +202,7 @@ public class Supplier {
 		System.err.println("Processed transaction number:"+transactionCounter);
 		System.err.println("Total elapsed time:"+elapseTime);
 		System.err.println("Transaction throughput:"+transactionCounter/elapseTime);
-		System.out.println("Transation for "+args[0] +" finished.");
+		System.out.println("Transation for "+transFile +" finished.");
 		System.out.println("Total elapsed time:"+elapseTime);
 		System.out.println("Transaction throughput:"+transactionCounter/elapseTime);
 		System.exit(0);

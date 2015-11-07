@@ -60,7 +60,7 @@ public interface MyAccessor {
 //	Result<OrderByCarrier> getOrderByDistrictDelivery(@Param("o_w_id") int w_id,
 //			@Param("o_d_id") int d_id);
 	@Query("SELECT * FROM supplier.order_ where " 
-			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_carrier_id = 0")
+			+ "o_w_id = :o_w_id AND o_d_id = :o_d_id AND o_carrier_id = 0 limit 1")
 	Result<Order> getOrderByDistrictDelivery(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id);
 	

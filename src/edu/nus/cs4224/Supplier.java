@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -36,7 +37,8 @@ public class Supplier {
 	private Mapper<Warehouse> w_mapper;
 	private Mapper<OrderLine> ol_mapper;
 	private Mapper<Stock> s_mapper;
-	private Mapper<OrderByCarrier> obCarrier_mapper;
+	private Mapper<OrderByCustomer> obCustomer_mapper;
+	//private Mapper<OrderByCarrier> obCarrier_mapper;
 	
 	public Supplier() {
 		CassandraConnector connector = new CassandraConnector();
@@ -50,13 +52,124 @@ public class Supplier {
 		o_mapper = manager.mapper(Order.class);
 		ol_mapper = manager.mapper(OrderLine.class);
 		s_mapper = manager.mapper(Stock.class);
-		obCarrier_mapper = manager.mapper(OrderByCarrier.class);
+		w_mapper = manager.mapper(Warehouse.class);
+		obCustomer_mapper = manager.mapper(OrderByCustomer.class);
+		//obCarrier_mapper = manager.mapper(OrderByCarrier.class);
 	}
 
 	public static void main(String[] args) {
 		Supplier supplier = new Supplier();
-		supplier.queryPopularItems(1, 1, 2);
-	}
+		String transFile;
+		if (args.length > 0)
+		{
+			transFile = args[0];
+		}else {
+			transFile = "/Users/zhengxifeng/Desktop/xact-spec-files/D8-xact-files/0.txt";
+		}
+		System.out.println("Transaction for "+ transFile + " start");
+		BufferedReader br = null;
+		String line = "";
+		long startTime=System.currentTimeMillis();
+		int transactionCounter = 0;
+		try {
+			br = new BufferedReader(new FileReader(transFile));
+			while ((line = br.readLine()) != null ) {
+				String[] input = line.split(",");
+				if (input[0].equals("N")) {
+					//new order
+					transactionCounter++;
+					int c_id = Integer.parseInt(input[1]);
+					int w_id = Integer.parseInt(input[2]);
+					int d_id = Integer.parseInt(input[3]);
+					int itemNumber = Integer.parseInt(input[4]);
+					int []items = new int[itemNumber];
+					int []suppliers = new int[itemNumber];
+					BigDecimal []quantities = new BigDecimal[itemNumber];
+					//System.out.println("N,"+c_id+","+w_id+","+d_id);
+					String subline = "";
+					for (int j = 0; j < itemNumber; j++) {
+						if (null == (subline = br.readLine())) {
+							System.err.println("readline error!\n\n");
+							System.exit(-1);
+						} else {
+							String[] subinput = subline.split(",");
+							items[j] = Integer.parseInt(subinput[0]);
+							suppliers[j] = Integer.parseInt(subinput[1]);
+							quantities[j] = new BigDecimal(subinput[2]);
+						}
+						//System.out.println(items[j]+","+suppliers[j]+","+quantities[j].intValue());
+					}
+					supplier.newOrder(w_id, d_id, c_id, itemNumber, items, suppliers, quantities);
+					//break;
+				} else if (input[0].equals("P")) {
+					//Payment transaction
+					transactionCounter++;
+					int w_id = Integer.parseInt(input[1]);
+					int d_id = Integer.parseInt(input[2]);
+					int c_id = Integer.parseInt(input[3]);
+					BigDecimal payment = new BigDecimal(input[4]);
+					//System.out.println("P,"+w_id+","+d_id+","+c_id);
+					supplier.paymentTran(w_id, d_id, c_id, payment);
+					//break;
+				} else if (input[0].equals("D")) {
+					//delivery
+					transactionCounter++;
+					int w_id = Integer.parseInt(input[1]);
+					int carrier_id = Integer.parseInt(input[2]);
+					//System.out.println("D,"+w_id+","+carrier_id);
+					supplier.queryDeliveryTran(w_id, carrier_id);
+					//break;
+				} else if (input[0].equals("O")) {
+					//order status
+					transactionCounter++;
+					int c_w_id = Integer.parseInt(input[1]);
+					int c_d_id = Integer.parseInt(input[2]);
+					int c_id = Integer.parseInt(input[3]);
+					//System.out.println("O,"+c_w_id+","+c_d_id+","+c_id);
+					supplier.queryOrderStatus(c_w_id, c_d_id, c_id);
+				} else if (input[0].equals("S")) {
+					//stock level
+					transactionCounter++;
+					int w_id = Integer.parseInt(input[1]);
+					int d_id = Integer.parseInt(input[2]);
+					int t = Integer.parseInt(input[3]);
+					int l = Integer.parseInt(input[4]);
+					//System.out.println("S,"+w_id+","+d_id+","+t);
+					supplier.queryStocks(w_id, d_id, l, t);
+				} else if (input[0].equals("I")) {
+					//popular item
+					transactionCounter++;
+					int w_id = Integer.parseInt(input[1]);
+					int d_id = Integer.parseInt(input[2]);
+					int l = Integer.parseInt(input[3]);
+					//System.out.println("I,"+w_id+","+d_id+","+l);
+					supplier.queryPopularItems(w_id, d_id, l);
+				}
+				System.out.println();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		long endTime=System.currentTimeMillis();
+		long elapseTime = (endTime - startTime)/1000;
+		System.err.println("Processed transaction number:"+transactionCounter);
+		System.err.println("Total elapsed time:"+elapseTime);
+		System.err.println("Transaction throughput:"+transactionCounter/elapseTime);
+		System.out.println("Transation for "+args[0] +" finished.");
+		System.out.println("Total elapsed time:"+elapseTime);
+		System.out.println("Transaction throughput:"+transactionCounter/elapseTime);
+		System.exit(0);
+	  }
 	
 	public void newOrder(int w_id, int d_id, int c_id, int num_items, 
 			int[] items, int[] suppliers, BigDecimal[] quantities) {
@@ -91,6 +204,8 @@ public class Supplier {
 		newOrder.setO_all_local(new BigDecimal(o_all_local));
 		newOrder.setO_ol_cnt(new BigDecimal(num_items));
 		o_mapper.save(newOrder);
+		OrderByCustomer newOrderByCust = new OrderByCustomer(newOrder);
+		obCustomer_mapper.save(newOrderByCust);
 		BigDecimal total_amount = new BigDecimal(0);
 		
 		for (int i=0; i<num_items; i++) {
@@ -143,6 +258,14 @@ public class Supplier {
 		customer.setC_ytd_payment(customer.getC_ytd_payment() + paymentAmount.floatValue());
 		customer.setC_payment_cnt(customer.getC_payment_cnt() + 1);
 		c_mapper.save(customer);
+		System.err.println("customer identifier:"+w_id+","+d_id+","+c_id);
+		System.err.println("customer name:"+customer.getC_first()+" "+customer.getC_middle()+" "
+				+customer.getC_last());
+		System.err.println("customer address:"+customer.getC_street_1()+","+customer.getC_street_2()
+				+","+customer.getC_city()+","+customer.getC_state()+","+customer.getC_zip());
+		System.err.println("phone:"+customer.getC_phone()+", since:"+customer.getC_since()
+				+", credit:"+customer.getC_credit()+", credit limit:"+customer.getC_credit_lim()
+				+", discount:"+customer.getC_discount()+", balance:"+customer.getC_balance());
 	}
 	
 	public void insert(String table, String[] names, Object[] values) {
@@ -196,21 +319,24 @@ public class Supplier {
 	 * @param t		Stock threshold T
 	 * @return
 	 */
-	public List<Integer> queryStocks(int w_id, int d_id, int l, int t) {
+	public void queryStocks(int w_id, int d_id, int l, int t) {
 		District district = d_mapper.get(w_id, d_id);
 		int d_next_o_id = district.getD_next_o_id();
 		
 		Result<OrderLine> ol_List = myAccessor.getLastLOrdersLine(w_id, d_id, d_next_o_id - l, d_next_o_id);
-		List<Integer> stockAlert = new ArrayList<Integer>();
+		//List<Integer> stockAlert = new ArrayList<Integer>();
+		int totalItems = 0;
 		for (OrderLine ol : ol_List) {
 			int supplier_w_id = ol.getOl_supply_w_id();
 			int i_id = ol.getOl_i_id();
 			Stock stock = s_mapper.get(supplier_w_id, i_id);
-			if (stock.getS_quantity().doubleValue() < t) {
-				stockAlert.add(ol.getOl_i_id());
+			if (stock.getS_quantity().intValue() < t) {
+				//stockAlert.add(ol.getOl_i_id());
+				totalItems += stock.getS_quantity().intValue();
 			}
 		}
-		return stockAlert;
+		System.err.println("Total number of items:"+ totalItems);
+		//return stockAlert;
 	}
 	
 	/**
@@ -223,9 +349,13 @@ public class Supplier {
 		Result<District> districts = myAccessor.getDistrictByWid(w_id);
 		for (District distr : districts) {
 			int d_id = distr.getD_id();
-			System.out.println("district:" + d_id);
+			//System.out.println("district:" + d_id);
 			Result<Order> orders = myAccessor.getOrderByDistrictDelivery(w_id, d_id);
 			Order X = orders.one();
+			if (null == X)
+			{
+				return;
+			}
 			int c_id = X.getO_c_id();
 			int N = X.getO_id();
 			X.setO_carrier_id(carrier_id);
@@ -257,6 +387,11 @@ public class Supplier {
 				+ " : " + customer.getC_balance().toString());
 		Result<OrderByCustomer> orders = myAccessor.getOrderByCustomer(c_w_id, c_d_id, c_id);
 		OrderByCustomer lastOrder = orders.one();
+		if (null == lastOrder)
+		{
+			//System.out.println(c_w_id+","+c_d_id+","+c_id);
+			return;
+		}
 		System.err.println("O_ID:"+lastOrder.getO_id()+" O_ENTRY_D:"+lastOrder.getO_entry_d().toString()
 				+ " O_CARRIER_ID:"+lastOrder.getO_carrier_id());
 		Result<OrderLine> ol_list = myAccessor.getOrderLinesByOrder(c_w_id, c_d_id, lastOrder.getO_id());

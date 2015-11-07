@@ -1,4 +1,9 @@
-基表： 
+sed -i 's/,null,/,0,/' order.csv
+sed -i 's/,null,/,2015-01-01 00:00:00.0,/' order-line.csv
+
+create keyspace Supplier
+with REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
 CREATE TABLE warehouse (
     w_id int PRIMARY KEY,
     w_city text,
@@ -74,7 +79,7 @@ CREATE TABLE order_ (
     o_entry_d timestamp,
     o_ol_cnt decimal,
     PRIMARY KEY ((o_w_id, o_d_id), o_id)
-) WITH CLUSTERING ORDER BY (o_id DESC)
+) WITH CLUSTERING ORDER BY (o_id ASC)
     AND bloom_filter_fp_chance = 0.01
     AND caching = '{"keys":"ALL", "rows_per_partition":"NONE"}'
     AND comment = ''
@@ -89,7 +94,7 @@ CREATE TABLE order_ (
     AND read_repair_chance = 0.0
     AND speculative_retry = '99.0PERCENTILE';
 CREATE INDEX order__o_c_id_idx ON d8.order_ (o_c_id);
-copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';                                                                    
+copy Order_(O_W_ID,O_D_ID,O_ID,O_C_ID,O_CARRIER_ID,O_OL_CNT,O_ALL_LOCAL,O_ENTRY_D) from 'order.csv';                                                        
 
 CREATE TABLE order_by_customer (
     o_w_id int,
@@ -129,7 +134,7 @@ CREATE TABLE customer (
     c_zip text,
     PRIMARY KEY ((c_w_id, c_d_id), c_id)
 );
-copy Customer(C_W_ID,C_D_ID,C_ID,C_FIRST,C_MIDDLE,C_LAST,C_STREET_1,C_STREET_2,C_CITY,C_STATE,C_ZIP,C_PHONE,C_SINCE,C_CREDIT,C_CREDIT_LIM,C_DISCOUNT,C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_DELIVERY_CNT,C_DATA) from 'customer.csv';// with HEADER = TURE; 
+copy Customer(C_W_ID,C_D_ID,C_ID,C_FIRST,C_MIDDLE,C_LAST,C_STREET_1,C_STREET_2,C_CITY,C_STATE,C_ZIP,C_PHONE,C_SINCE,C_CREDIT,C_CREDIT_LIM,C_DISCOUNT,C_BALANCE,C_YTD_PAYMENT,C_PAYMENT_CNT,C_DELIVERY_CNT,C_DATA) from 'customer.csv';
  
 Order_Line:
 CREATE TABLE order_line (
@@ -145,7 +150,7 @@ CREATE TABLE order_line (
     ol_supply_w_id int,
     PRIMARY KEY ((ol_w_id, ol_d_id), ol_o_id, ol_number)
 );
-copy Order_Line(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER,OL_I_ID,OL_DELIVERY_D,OL_AMOUNT,OL_SUPPLY_W_ID,OL_QUANTITY,OL_DIST_INFO) from 'order-line.csv';//with HEADER = TRUE;
+copy Order_Line(OL_W_ID,OL_D_ID,OL_O_ID,OL_NUMBER,OL_I_ID,OL_DELIVERY_D,OL_AMOUNT,OL_SUPPLY_W_ID,OL_QUANTITY,OL_DIST_INFO) from 'order-line.csv';
  
 CREATE TABLE new_order_line (
     ol_w_id int,

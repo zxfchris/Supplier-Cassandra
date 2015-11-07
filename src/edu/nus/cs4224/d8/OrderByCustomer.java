@@ -7,7 +7,7 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(keyspace = "D8", name = "order_by_customer")
+@Table(keyspace = "Supplier", name = "order_by_customer")
 public class OrderByCustomer {
 	@PartitionKey(0)
 	private int o_w_id;
@@ -30,6 +30,17 @@ public class OrderByCustomer {
     	this.o_d_id = o_d_id;
     	this.o_carrier_id = o_carrier_id;
     	this.o_id = o_id;
+    }
+    
+    public OrderByCustomer(Order order) {
+    	this.o_w_id = order.getO_w_id();
+    	this.o_d_id = order.getO_d_id();
+    	this.o_id = order.getO_id();
+    	this.o_all_local = order.getO_all_local();
+    	this.o_carrier_id = order.getO_carrier_id();
+    	this.o_c_id = order.getO_c_id();
+    	this.o_entry_d = order.getO_entry_d();
+    	this.o_ol_cnt = order.getO_ol_cnt();
     }
     
 	public int getO_w_id() {

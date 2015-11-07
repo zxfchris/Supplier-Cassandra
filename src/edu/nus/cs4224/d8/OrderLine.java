@@ -7,7 +7,7 @@ import com.datastax.driver.mapping.annotations.ClusteringColumn;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 
-@Table(keyspace = "D8", name = "order_line")
+@Table(keyspace = "Supplier", name = "order_line")
 public class OrderLine {
 	@PartitionKey(0)
 	private int ol_w_id;
@@ -23,7 +23,7 @@ public class OrderLine {
 	private int ol_supply_w_id;
 	
 	private BigDecimal ol_quantity;
-	private String ol_district_info;
+	private String ol_dist_info;
 	
 	public OrderLine(){
 	}
@@ -89,10 +89,11 @@ public class OrderLine {
 	public void setOl_quantity(BigDecimal ol_quantity) {
 		this.ol_quantity = ol_quantity;
 	}
-	public String getOl_district_info() {
-		return ol_district_info;
+	public String getOl_dist_info() {
+		return ol_dist_info;
 	}
-	public void setOl_district_info(String ol_district_info) {
-		this.ol_district_info = ol_district_info;
+
+	public void setOl_dist_info(String ol_dist_info) {
+		this.ol_dist_info = ol_dist_info;
 	}
 }

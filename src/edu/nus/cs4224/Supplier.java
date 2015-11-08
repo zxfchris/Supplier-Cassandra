@@ -389,6 +389,7 @@ public class Supplier {
 		for (Entry<Integer, List<Integer>> entry : ol_Map.entrySet()) {
 			int supplier_id = entry.getKey();
 			List<Integer> item_ids = entry.getValue();
+			Collections.sort(item_ids);
 			System.out.println("items size: " + item_ids.size());
 			
 			StringBuilder builder = new StringBuilder(item_ids.toString());

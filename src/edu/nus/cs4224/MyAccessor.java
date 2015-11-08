@@ -72,8 +72,4 @@ public interface MyAccessor {
 	Result<OrderByCustomer> getOrderByCustomer(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id, @Param("o_c_id") int c_id);
 	
-	@Query("SELECT * FORM supplier.stock where s_w_id = :s_w_id and "
-			+ "s_i_id >= :min_i_id and s_i_id <= :max_i_id")
-	Result<Stock> getStockByItemRange(@Param("s_w_id") int s_w_id, 
-			@Param("min_i_id") int min_i_id, @Param("max_i_id") int max_i_id);
 }

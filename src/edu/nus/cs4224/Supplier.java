@@ -391,22 +391,15 @@ public class Supplier {
 			List<Integer> item_ids = entry.getValue();
 			System.out.println("items size: " + item_ids.size());
 			
-			int min_i_id, max_i_id;
-			if (item_ids.size() > 0) {
-				min_i_id = item_ids.get(0);
-				max_i_id = item_ids.get(0);
-				for (int i_id : item_ids) {
-					min_i_id = Math.min(i_id, min_i_id);
-					max_i_id = Math.max(i_id, max_i_id);
-				}
-				Result<Stock> stocks = myAccessor.getStockByItemRange(supplier_id, min_i_id, max_i_id);
-				for (Stock s : stocks) {
-					int item_id = s.getS_i_id();
-					if (item_ids.indexOf(item_id) >= 0 && s.getS_quantity().intValue() < t) {
-						totalItems++;
-					}
-				}
-			}
+			StringBuilder builder = new StringBuilder(item_ids.toString());
+			builder.replace(0, 1, "(");
+			int length = builder.length();
+			builder.replace(length-1, length, ")");
+			
+			String cql = "SELECT * FROM supplier.stock where s_w_id = " + supplier_id + " AND "
+					+ "s_i_id in " + builder.toString() + " AND s_quantity < " + t + ";";
+			ResultSet results = session.execute(cql);
+			totalItems += results.all().size();
 		}
 		
 		System.err.println("Total number of items:"+ totalItems);

@@ -480,7 +480,7 @@ public class Supplier {
 	 * @param l		Number of last orders to be examined L
 	 */
 	public void queryPopularItems(int w_id, int d_id, int l) {
-		Map<Item, BigDecimal> popularItems = new HashMap<Item, BigDecimal>();
+//		Map<Item, BigDecimal> popularItems = new HashMap<Item, BigDecimal>();
 		Map<Item, Integer> orderNums = new HashMap<Item, Integer>();
 		
 		System.err.println(w_id + "," + d_id);
@@ -511,33 +511,37 @@ public class Supplier {
 			OrderLine ol = iter.next();
 			BigDecimal max = ol.getOl_quantity();
 			Item item = i_mapper.get(ol.getOl_i_id());
-			updatePopularItems(popularItems, ol, item, orderNums);
+			System.err.println(item.getI_name() + " Quantity ordered: " + ol.getOl_quantity());
+//			updatePopularItems(popularItems, ol, item, orderNums);
+			updatePopularItems(item, orderNums);
 			while (iter.hasNext()) {
 				ol = iter.next();
 				if (ol.getOl_quantity().intValue() < max.intValue()) {
 					break;
 				}
-				updatePopularItems(popularItems, ol, i_mapper.get(ol.getOl_i_id()), orderNums);
+				System.err.println(i_mapper.get(ol.getOl_i_id()) + " Quantity ordered: " + ol.getOl_quantity());
+//				updatePopularItems(popularItems, ol, i_mapper.get(ol.getOl_i_id()), orderNums);
+				updatePopularItems(item, orderNums);
 			}
 		}
-		for (Item i : popularItems.keySet()) {
-			System.err.println(i.getI_name() + " Quantity ordered: " + popularItems.get(i));
-		}
+//		for (Item i : popularItems.keySet()) {
+//			System.err.println(i.getI_name() + " Quantity ordered: " + popularItems.get(i));
+//		}
 		
 		for (Item i : orderNums.keySet()) {
 			System.err.println(i.getI_name()+ " Number of orders: " + orderNums.get(i));
 		}
 	}
 	
-	private void updatePopularItems(Map<Item, BigDecimal> popularItems, OrderLine ol,
+	private void updatePopularItems(//Map<Item, BigDecimal> popularItems, OrderLine ol,
 			Item item, Map<Item, Integer> orderNums) {
-		if (popularItems.get(item) != null) {
-			BigDecimal currentQuantity = popularItems.get(item);
-			currentQuantity.add(ol.getOl_quantity());
-			popularItems.put(item, currentQuantity);
-		} else {
-			popularItems.put(item, ol.getOl_quantity());
-		}
+//		if (popularItems.get(item) != null) {
+//			BigDecimal currentQuantity = popularItems.get(item);
+//			currentQuantity.add(ol.getOl_quantity());
+//			popularItems.put(item, currentQuantity);
+//		} else {
+//			popularItems.put(item, ol.getOl_quantity());
+//		}
 		
 		if (orderNums.get(item) != null) {
 			int num = orderNums.get(item);

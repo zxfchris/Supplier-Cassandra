@@ -12,6 +12,7 @@ import edu.nus.cs4224.d8.District;
 import edu.nus.cs4224.d8.Order;
 import edu.nus.cs4224.d8.OrderByCustomer;
 import edu.nus.cs4224.d8.OrderLine;
+import edu.nus.cs4224.d8.Stock;
 
 @Accessor
 public interface MyAccessor {
@@ -70,4 +71,9 @@ public interface MyAccessor {
 			+ " order by o_id desc")
 	Result<OrderByCustomer> getOrderByCustomer(@Param("o_w_id") int w_id,
 			@Param("o_d_id") int d_id, @Param("o_c_id") int c_id);
+	
+	@Query("SELECT * FORM supplier.stock where s_w_id = :s_w_id and "
+			+ "s_i_id >= :min_i_id and s_i_id <= :max_i_id")
+	Result<Stock> getStockByItemRange(@Param("s_w_id") int s_w_id, 
+			@Param("min_i_id") int min_i_id, @Param("max_i_id") int max_i_id);
 }

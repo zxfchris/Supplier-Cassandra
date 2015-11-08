@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.ResultSet;
@@ -359,20 +360,53 @@ public class Supplier {
 		District district = d_mapper.get(w_id, d_id);
 		int d_next_o_id = district.getD_next_o_id();
 		Result<OrderLine> ol_List = myAccessor.getLastLOrdersLine(w_id, d_id, d_next_o_id - l, d_next_o_id);
-		
-		List<Integer> stockAlert = new ArrayList<Integer>();
-		int totalItems = 0;
 		System.out.println("last "+ol_List+" orderlines");
+		
+//		List<Integer> stockAlert = new ArrayList<Integer>();
+		
+		int totalItems = 0;
 		int count = 0;
+		Map<Integer, List<Integer>> ol_Map = new HashMap<Integer, List<Integer>>();
 		for (OrderLine ol : ol_List) {
-			int supplier_w_id = ol.getOl_supply_w_id();
-			int i_id = ol.getOl_i_id();
-			Stock stock = s_mapper.get(supplier_w_id, i_id);
-			if (stock.getS_quantity().intValue() < t) {
-				stockAlert.add(ol.getOl_i_id());
-				totalItems++;
+//			Stock stock = s_mapper.get(supplier_w_id, i_id);
+//			if (stock.getS_quantity().intValue() < t) {
+//				stockAlert.add(ol.getOl_i_id());
+//				totalItems++;
+//			}
+			int supplier_id = ol.getOl_supply_w_id();
+			List<Integer> item_ids;
+			if (ol_Map.get(supplier_id) == null) {
+				item_ids = new ArrayList<Integer>();
+			} else {
+				item_ids = ol_Map.get(supplier_id);
 			}
+			item_ids.add(ol.getOl_i_id());
+			ol_Map.put(supplier_id, item_ids);
 			count ++;
+		}
+		System.out.println("orderlines num: " + count);
+		
+		for (Entry<Integer, List<Integer>> entry : ol_Map.entrySet()) {
+			int supplier_id = entry.getKey();
+			List<Integer> item_ids = entry.getValue();
+			System.out.println("items size: " + item_ids.size());
+			
+			int min_i_id, max_i_id;
+			if (item_ids.size() > 0) {
+				min_i_id = item_ids.get(0);
+				max_i_id = item_ids.get(0);
+				for (int i_id : item_ids) {
+					min_i_id = Math.min(i_id, min_i_id);
+					max_i_id = Math.max(i_id, max_i_id);
+				}
+				Result<Stock> stocks = myAccessor.getStockByItemRange(supplier_id, min_i_id, max_i_id);
+				for (Stock s : stocks) {
+					int item_id = s.getS_i_id();
+					if (item_ids.indexOf(item_id) >= 0 && s.getS_quantity().intValue() < t) {
+						totalItems++;
+					}
+				}
+			}
 		}
 		
 		System.err.println("Total number of items:"+ totalItems);

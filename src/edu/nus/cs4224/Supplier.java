@@ -371,7 +371,7 @@ public class Supplier {
 //				totalItems++;
 //			}
 			int item_id = ol.getOl_i_id();
-			if (item_ids.get(item_id) == null) {
+			if (item_ids.indexOf(item_id) < 0) {
 				item_ids.add(item_id);
 			} 
 //			count ++;
